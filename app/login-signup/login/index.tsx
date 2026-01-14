@@ -54,17 +54,7 @@ const LoginPage = () => {
 
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-<<<<<<< HEAD:app/login-signup/login/page.tsx
-    console.log(data);
-    await signInUser(data);
-    alert("Login Successful")
-    reset({
-      password: "",
-      email: "",
-    });
-=======
     mutate(data);
->>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/login/index.tsx
   };
 
   return (
@@ -123,10 +113,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-<<<<<<< HEAD:app/login-signup/login/page.tsx
-            <button className="w-full bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
-              Login Securely
-=======
             <button
               type="submit"
               disabled={isPending}
@@ -141,7 +127,6 @@ const LoginPage = () => {
               ) : (
                 "Login Securely"
               )}
->>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/login/index.tsx
             </button>
           </form>
 
