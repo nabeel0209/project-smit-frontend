@@ -9,8 +9,6 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
-import { sign } from "node:crypto";
 import { signUpUser } from "@/app/services/auth";
 
 const registerSchema = yup.object({
@@ -62,8 +60,8 @@ const SignUpPage = () => {
       dob: new Date(data.dob),
     };
     console.log(formatedData);
-
     await signUpUser(formatedData);
+    alert("Account Created Successfully")
 
     reset({
       name: "",
@@ -76,7 +74,7 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fcf9] bg-[radial-gradient(circle_at_top_right,_#d1e7d8_0%,_transparent_40%)] flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen w-full bg-[#f8fcf9] bg-[radial-gradient(circle_at_top_right,#d1e7d8_0%,transparent_40%)] flex flex-col md:flex-row font-sans">
       {/* Left Section: Login Form */}
       <div className="w-full md:w-[40%] border-r-2 border-gray-100 flex flex-col p-5 md:py-18 md:px-12 justify-center items-center relative">
         {/* Top Corner Logo - Visible on all screens */}
@@ -194,7 +192,7 @@ const SignUpPage = () => {
               </label>
             </div>
 
-            <button className="w-full text-white bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
+            <button className="w-full text-white bg-[#10B981] py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
               Sign up
             </button>
           </form>
@@ -224,7 +222,7 @@ const SignUpPage = () => {
 
       {/* Right Section: Branding (Hidden on Mobile) */}
       <div className="hidden md:flex md:w-[60%] justify-center  items-center  py-12">
-        <div className="w-full max-w-2xl p-12 flex items-center gap-12 min-h-[400px]">
+        <div className="w-full max-w-2xl p-12 flex items-center gap-12 min-h-100">
           {/* Large Branding Logo */}
           <div className="w-1/3 flex justify-center text-[#4ade80]">
             <svg
