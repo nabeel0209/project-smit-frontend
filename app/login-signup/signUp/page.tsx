@@ -9,10 +9,13 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
+import { sign } from "node:crypto";
+import { signUpUser } from "@/app/services/auth";
 
 const registerSchema = yup.object({
   name: yup.string().required().min(3, "name must be atleast 3 chars"),
-  dateOfBirth: yup.string().required("date of Birth is required"),
+  dob: yup.string().required("date of Birth is required"),
   email: yup.string().required().email(),
   password: yup
     .string()
@@ -53,24 +56,29 @@ const SignUpPage = () => {
     resolver: yupResolver(registerSchema),
   });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const formatedData = {
+      ...data,
+      dob: new Date(data.dob),
+    };
+    console.log(formatedData);
+
+    await signUpUser(formatedData);
+
     reset({
       name: "",
       password: "",
       email: "",
-      dateOfBirth: "",
+      dob: "",
       gender: "",
       rememberMe: false,
     });
   };
 
-  console.log(errors);
-
   return (
     <div className="min-h-screen w-full bg-[#f8fcf9] bg-[radial-gradient(circle_at_top_right,_#d1e7d8_0%,_transparent_40%)] flex flex-col md:flex-row font-sans">
       {/* Left Section: Login Form */}
-      <div className="w-full md:w-[40%] border-r-2 border-gray-100 flex flex-col p-8 md:py-18 md:px-12 justify-center items-center relative">
+      <div className="w-full md:w-[40%] border-r-2 border-gray-100 flex flex-col p-5 md:py-18 md:px-12 justify-center items-center relative">
         {/* Top Corner Logo - Visible on all screens */}
         <div className="absolute top-8 left-8 flex items-center gap-2">
           <div className="w-10 h-8 rounded flex items-center justify-center">
@@ -82,7 +90,7 @@ const SignUpPage = () => {
         </div>
 
         {/* Login Card */}
-        <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-sm mt-12 md:mt-3">
+        <div className="w-full max-w-md bg-white rounded-3xl p-8  shadow-sm mt-14 md:mt-3">
           <div className="flex flex-col gap-1 mb-5">
             <h1 className="text-3xl font-medium text-[#064E3B]">Get started</h1>
             <h1 className="text-[#64748B]">Create a new account</h1>
@@ -143,12 +151,12 @@ const SignUpPage = () => {
                 <input
                   type="date"
                   placeholder="Date of Birth"
-                  {...register("dateOfBirth", { required: true })}
+                  {...register("dob", { required: true })}
                   className="w-full p-3 rounded-xl border-2 border-[#D1FAE5] outline-none focus:border-2 focus:border-[#10B981] transition-all text-gray-500  bg-gray-50/30"
                 />
-                {errors.dateOfBirth && (
+                {errors.dob && (
                   <span className="text-red-500 text-[13px]">
-                    {errors?.dateOfBirth?.message}
+                    {errors?.dob?.message}
                   </span>
                 )}
               </div>

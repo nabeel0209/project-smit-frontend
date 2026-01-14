@@ -1,4 +1,5 @@
 "use client";
+import { signInUser } from "@/app/services/auth";
 import FacebookIcon from "@/public/icons/facebookIcon";
 import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
@@ -21,13 +22,13 @@ const LoginPage = () => {
   const {
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
+    await signInUser(data);
     reset({
       password: "",
       email: "",
