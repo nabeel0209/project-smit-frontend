@@ -4,16 +4,23 @@ import FacebookIcon from "@/public/icons/facebookIcon";
 import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
 import ShowEyeIcon from "@/public/icons/showEyeIcon";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import toast, { Toaster } from "react-hot-toast";
 
 type Inputs = {
   email: string;
   password: string;
 };
 
+
+
 const LoginPage = () => {
+
+
   const [showPass, setShowPass] = useState<boolean>(false);
   const handlePass = (): void => {
     setShowPass((prev) => !prev);
@@ -26,7 +33,28 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
+
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: signInUser,
+    onSuccess: (result) => {
+      //  Success logic
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+      toast.success("Logged in successfully!");
+      reset(); // Form reset
+      // router.push("/dashboard");
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || "An error occurred";
+      toast.error(msg);
+    },
+  });
+
+
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+<<<<<<< HEAD:app/login-signup/login/page.tsx
     console.log(data);
     await signInUser(data);
     alert("Login Successful")
@@ -34,6 +62,9 @@ const LoginPage = () => {
       password: "",
       email: "",
     });
+=======
+    mutate(data);
+>>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/login/index.tsx
   };
 
   return (
@@ -58,7 +89,6 @@ const LoginPage = () => {
             </h1>
             <h1 className="text-[#64748B]">Sign in to your account</h1>
           </div>
-
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <input
@@ -93,8 +123,25 @@ const LoginPage = () => {
               </div>
             </div>
 
+<<<<<<< HEAD:app/login-signup/login/page.tsx
             <button className="w-full bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
               Login Securely
+=======
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full text-white bg-[#10B981] py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isPending ? (
+                <>
+                  <div className="flex justify-center items-center">
+                    <Loader2 className="animate-spin" size={20} />
+                  </div>
+                </>
+              ) : (
+                "Login Securely"
+              )}
+>>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/login/index.tsx
             </button>
           </form>
 

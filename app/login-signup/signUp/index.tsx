@@ -1,5 +1,4 @@
 "use client";
-
 import FacebookIcon from "@/public/icons/facebookIcon";
 import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
@@ -10,11 +9,20 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpUser } from "@/app/services/auth";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 const registerSchema = yup.object({
   name: yup.string().required().min(3, "name must be atleast 3 chars"),
   dob: yup.string().required("date of Birth is required"),
-  email: yup.string().required().email(),
+  email: yup
+    .string()
+    .required("Email is required")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Please enter a valid email (e.g. abc@gmail.com)"
+    ),
   password: yup
     .string()
     .required("Password is required")
@@ -54,11 +62,28 @@ const SignUpPage = () => {
     resolver: yupResolver(registerSchema),
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: signUpUser,
+    onSuccess: (result) => {
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+      toast.success("Account created successfully! ");
+      reset(); // Form clear karein
+      // router.push("/login");
+    },
+
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || "Signup failed. Try again.";
+      toast.error(msg);
+    },
+  });
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const formatedData = {
       ...data,
       dob: new Date(data.dob),
     };
+<<<<<<< HEAD:app/login-signup/signUp/page.tsx
     console.log(formatedData);
     await signUpUser(formatedData);
     alert("Account Created Successfully")
@@ -71,6 +96,9 @@ const SignUpPage = () => {
       gender: "",
       rememberMe: false,
     });
+=======
+    mutate(formatedData);
+>>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/signUp/index.tsx
   };
 
   return (
@@ -192,8 +220,24 @@ const SignUpPage = () => {
               </label>
             </div>
 
+<<<<<<< HEAD:app/login-signup/signUp/page.tsx
             <button className="w-full text-white bg-[#10B981] py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
               Sign up
+=======
+            <button
+              disabled={isPending}
+              className="w-full text-white bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer"
+            >
+              {isPending ? (
+                <>
+                  <div className="flex justify-center items-center">
+                    <Loader2 className="animate-spin" size={20} />
+                  </div>
+                </>
+              ) : (
+                "Sign up"
+              )}
+>>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/signUp/index.tsx
             </button>
           </form>
 
