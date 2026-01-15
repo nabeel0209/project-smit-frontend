@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import Sidebar from './components/Sidebar';
+import UserSidebar from '../components/UserSidebar';
 
-export default function DashboardLayout({
+export default function ProfileLayout({
     children,
 }: {
     children: ReactNode;
@@ -9,7 +9,7 @@ export default function DashboardLayout({
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB] text-[#111827]">
             {/* Sidebar */}
-            <Sidebar />
+            <UserSidebar />
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">

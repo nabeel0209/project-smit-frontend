@@ -11,7 +11,7 @@ export default async function CourseDetail({ params }: { params: Promise<{ id: s
       <div className="max-w-7xl mx-auto p-6 md:p-12 lg:p-16">
         
         <nav className="flex items-center gap-3 text-[#64748B] text-sm mb-12 font-semibold">
-          <Link href="/home-user" className="hover:text-[#10B981] transition-all">Explore</Link>
+          <Link href="/User" className="hover:text-[#10B981] transition-all">Home</Link>
           <span className="opacity-30">/</span>
           <span className="text-[#10B981] bg-[#F0FDF4] px-3 py-1 rounded-lg uppercase tracking-wider text-[10px]">
             {course.category}

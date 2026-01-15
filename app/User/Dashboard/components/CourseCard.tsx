@@ -14,7 +14,7 @@ export default function CourseCard({ id, image, name, progress }: CourseCardProp
     return (
         <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group">
             {/* Course Image - Clickable */}
-            <Link href={`/Dashboard-user/courses/${id}`}>
+            <Link href={`/User/Dashboard/courses/${id}`}>
                 <div className="relative aspect-video cursor-pointer">
                     <img
                         src={image}
@@ -48,7 +48,7 @@ export default function CourseCard({ id, image, name, progress }: CourseCardProp
                 </div>
 
                 {/* Button */}
-                <Link href={`/Dashboard-user/courses/${id}`}>
+                <Link href={`/User/Dashboard/courses/${id}`}>
                     <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#10B981] text-white rounded-xl font-semibold hover:bg-[#059669] transition-all duration-200 active:scale-95">
                         <Play size={18} fill="currentColor" />
                         {isCompleted ? 'Review Course' : 'Continue'}

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type Inputs = {
   email: string;
@@ -25,6 +26,8 @@ const LoginPage = () => {
   const handlePass = (): void => {
     setShowPass((prev) => !prev);
   };
+
+  const router = useRouter()
 
   const {
     register,
@@ -43,7 +46,7 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify(result.user));
       toast.success("Logged in successfully!");
       reset(); // Form reset
-      // router.push("/dashboard");
+      router.push("/User");
     },
     onError: (err: any) => {
       const msg = err.response?.data?.message || "An error occurred";

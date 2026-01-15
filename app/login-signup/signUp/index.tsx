@@ -12,6 +12,7 @@ import { signUpUser } from "@/app/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const registerSchema = yup.object({
   name: yup.string().required().min(3, "name must be atleast 3 chars"),
@@ -53,6 +54,8 @@ const SignUpPage = () => {
     setShowPass((prev) => !prev);
   };
 
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -69,7 +72,7 @@ const SignUpPage = () => {
       localStorage.setItem("user", JSON.stringify(result.user));
       toast.success("Account created successfully! ");
       reset(); // Form clear karein
-      // router.push("/login");
+      router.push("/User");
     },
 
     onError: (err: any) => {
@@ -83,22 +86,7 @@ const SignUpPage = () => {
       ...data,
       dob: new Date(data.dob),
     };
-<<<<<<< HEAD:app/login-signup/signUp/page.tsx
-    console.log(formatedData);
-    await signUpUser(formatedData);
-    alert("Account Created Successfully")
-
-    reset({
-      name: "",
-      password: "",
-      email: "",
-      dob: "",
-      gender: "",
-      rememberMe: false,
-    });
-=======
     mutate(formatedData);
->>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/signUp/index.tsx
   };
 
   return (
@@ -220,10 +208,6 @@ const SignUpPage = () => {
               </label>
             </div>
 
-<<<<<<< HEAD:app/login-signup/signUp/page.tsx
-            <button className="w-full text-white bg-[#10B981] py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer">
-              Sign up
-=======
             <button
               disabled={isPending}
               className="w-full text-white bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer"
@@ -237,7 +221,6 @@ const SignUpPage = () => {
               ) : (
                 "Sign up"
               )}
->>>>>>> 8e4fd90737bd748dbd5fb7e61a63cb9bccb8e24f:app/login-signup/signUp/index.tsx
             </button>
           </form>
 
