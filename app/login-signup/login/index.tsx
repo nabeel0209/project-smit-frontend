@@ -58,7 +58,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fcf9] bg-[radial-gradient(circle_at_top_right,_#d1e7d8_0%,_transparent_40%)] flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen w-full bg-[#f8fcf9] bg-[radial-gradient(circle_at_top_right,#d1e7d8_0%,transparent_40%)] flex flex-col md:flex-row font-sans">
       {/* Left Section: Login Form */}
       <div className="w-full md:w-[40%] border-r-2 border-gray-100 flex flex-col p-8 md:py-18 md:px-12 justify-center items-center relative">
         {/* Top Corner Logo - Visible on all screens */}
@@ -121,7 +121,7 @@ const LoginPage = () => {
               {isPending ? (
                 <>
                   <div className="flex justify-center items-center">
-                    <Loader2 className="animate-spin" size={20} />
+                    <Loader2 className="animate-spin" size={24} />
                   </div>
                 </>
               ) : (
@@ -155,7 +155,7 @@ const LoginPage = () => {
 
       {/* Right Section: Branding (Hidden on Mobile) */}
       <div className="hidden md:flex md:w-[60%] justify-center  items-center  py-12">
-        <div className="w-full max-w-2xl p-12 flex items-center gap-12 min-h-[400px]">
+        <div className="w-full max-w-2xl p-12 flex items-center gap-12 min-h-100">
           {/* Large Branding Logo */}
           <div className="w-1/3 flex justify-center text-[#4ade80]">
             <svg
