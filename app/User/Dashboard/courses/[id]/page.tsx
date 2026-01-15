@@ -96,7 +96,7 @@ export default function CourseDetailPage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-20">
+        <div className="space-y-10 pb-10">
             {/* Back Button */}
             <button
                 onClick={() => router.back()}
@@ -215,41 +215,7 @@ export default function CourseDetailPage() {
                         </div>
                     </section>
                 </div>
-
-                {/* Right: Sidebar */}
-                <div className="space-y-8">
-                    <section className="bg-white p-8 rounded-3xl border border-gray-100 sticky top-8">
-                        <h3 className="font-bold text-gray-900 mb-6">What's included</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Globe size={18} className="text-emerald-500" />
-                                <span>Full lifetime access</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Users size={18} className="text-emerald-500" />
-                                <span>Access on mobile and TV</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <FileText size={18} className="text-emerald-500" />
-                                <span>Assignments & Projects</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Award size={18} className="text-emerald-500" />
-                                <span>Certificate of completion</span>
-                            </div>
-                        </div>
-
-                        <hr className="my-8 border-gray-100" />
-
-                        <div className="bg-emerald-50 p-6 rounded-2xl">
-                            <h4 className="font-bold text-emerald-900 mb-1">Need Help?</h4>
-                            <p className="text-sm text-emerald-700 mb-4">Talk to our mentors or join the community.</p>
-                            <button className="w-full py-3 bg-white text-emerald-600 rounded-xl font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors">
-                                Contact Support
-                            </button>
-                        </div>
-                    </section>
-                </div>
+                
             </div>
         </div>
     );

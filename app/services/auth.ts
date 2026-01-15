@@ -8,7 +8,6 @@ const signUpUser = async (data: any) => {
   return res.data;
 };
 
-
 const signInUser = async (data: any) => {
   const res = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -17,4 +16,9 @@ const signInUser = async (data: any) => {
   return res.data; // Sirf data return karein
 };
 
-export { signUpUser, signInUser };
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+};
+
+export { signUpUser, signInUser, logout };

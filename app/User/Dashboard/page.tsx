@@ -161,7 +161,7 @@ export default function DashboardPage() {
                             {DUMMY_COURSES.slice(0, 3).map(course => (
                                 <Link
                                     key={course.id}
-                                    href={`/Dashboard-user/courses/${course.id}`}
+                                    href={`/User/Dashboard/courses/${course.id}`}
                                     className="flex items-center gap-4 group cursor-pointer hover:bg-emerald-50/50 p-2 rounded-2xl transition-all"
                                 >
                                     <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
