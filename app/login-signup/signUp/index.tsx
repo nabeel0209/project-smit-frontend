@@ -137,6 +137,20 @@ const SignUpPage = () => {
 
             <div className=" flex gap-2">
               <div className="flex flex-col w-[49%]">
+                <label className="text-gray-500 pl-1">Date of Birth</label>
+                <input
+                  type="date"
+                  placeholder="Date of Birth"
+                  {...register("dob", { required: true })}
+                  className="w-full p-3 rounded-xl border-2 border-[#D1FAE5] outline-none focus:border-2 focus:border-[#10B981] transition-all text-gray-500  bg-gray-50/30"
+                />
+                {errors.dob && (
+                  <span className="text-red-500 text-[13px]">
+                    {errors?.dob?.message}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col w-[49%]">
                 <label
                   htmlFor=""
                   className="text-gray-500 pl-1 flex items-center gap-1"
@@ -155,21 +169,6 @@ const SignUpPage = () => {
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-              </div>
-
-              <div className="flex flex-col w-[49%]">
-                <label className="text-gray-500 pl-1">Date of Birth</label>
-                <input
-                  type="date"
-                  placeholder="Date of Birth"
-                  {...register("dob", { required: true })}
-                  className="w-full p-3 rounded-xl border-2 border-[#D1FAE5] outline-none focus:border-2 focus:border-[#10B981] transition-all text-gray-500  bg-gray-50/30"
-                />
-                {errors.dob && (
-                  <span className="text-red-500 text-[13px]">
-                    {errors?.dob?.message}
-                  </span>
-                )}
               </div>
             </div>
 

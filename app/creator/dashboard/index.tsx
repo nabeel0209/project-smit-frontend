@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import { Search, MessageSquare, Bell, LogOut, Menu } from "lucide-react";
 import SideBar from "./sideBar";
+import Header from "./header";
 import VedioAndAchivemnet from "./vedios&Achievement";
 import CategoriesAndCards from "./categories&cards";
-import Header from "./header";
+
 
 const DashboardPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
