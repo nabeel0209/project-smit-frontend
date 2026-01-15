@@ -12,6 +12,7 @@ import { signUpUser } from "@/app/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const registerSchema = yup.object({
   name: yup.string().required().min(3, "name must be atleast 3 chars"),
@@ -53,6 +54,8 @@ const SignUpPage = () => {
     setShowPass((prev) => !prev);
   };
 
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -69,7 +72,7 @@ const SignUpPage = () => {
       localStorage.setItem("user", JSON.stringify(result.user));
       toast.success("Account created successfully! ");
       reset(); // Form clear karein
-      // router.push("/login");
+      router.push("/User");
     },
 
     onError: (err: any) => {
