@@ -8,21 +8,16 @@ import HowItWorks from "./components/how-it-work/How-it-work";
 import ForLearnersSection from "./components/learners/Learners";
 import SecurityTrust from "./components/securityTrust/Security-trust";
 
-
-
 export default function Home() {
   return (
     <main>
-  <Hero />
-  <Features />
-  <HowItWorks />
-  <ForLearnersSection />
-  <ForCreators />
-<SecurityTrust />
-<CTASection />
-
-     
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <ForLearnersSection />
+      <ForCreators />
+      <SecurityTrust />
+      <CTASection />
     </main>
   );
 }
-
