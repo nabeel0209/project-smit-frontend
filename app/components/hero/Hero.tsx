@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+<<<<<<< HEAD
 import { useRouter } from 'next/navigation';
+=======
+import Navbar from '../navbar/Navbar';
+>>>>>>> 3085256f06980aceaafd10de5be45866b68a5e92
 
 /**
  * Standard Props for Backend Integration
@@ -33,6 +37,7 @@ const Hero: React.FC<HeroProps> = ({
 
   return (
     <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden bg-[#FFFFFF] pt-24 lg:pt-16">
+      <Navbar/>
       {/* Background Glow Effect - Mint Mist color */}
       <div className="absolute top-0 right-0 -z-10 w-[50%] h-[50%] bg-[#F0FDF4] blur-[120px] rounded-full opacity-60" />
       

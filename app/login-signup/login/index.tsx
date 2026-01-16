@@ -124,7 +124,7 @@ const LoginPage = () => {
               {isPending ? (
                 <>
                   <div className="flex justify-center items-center">
-                    <Loader2 className="animate-spin" size={20} />
+                    <Loader2 className="animate-spin" size={24} />
                   </div>
                 </>
               ) : (

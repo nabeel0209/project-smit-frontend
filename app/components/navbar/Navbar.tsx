@@ -51,7 +51,7 @@ const Navbar: React.FC<NavbarProps> = ({
     if (isLoggedIn && onLogout) {
       onLogout();
     } else {
-      router.push('/signup');
+      router.push('/signUp');
     }
   };
 
