@@ -2,10 +2,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 /**
- * Standard Props for Backend Integration [cite: 49]
- * Follows "clean, modular" instruction [cite: 49]
+ * Standard Props for Backend Integration
+ * Follows "clean, modular" instruction
  */
 interface HeroProps {
   title?: string;
@@ -13,7 +14,6 @@ interface HeroProps {
   description?: string;
   primaryBtnText?: string;
   secondaryBtnText?: string;
-  onPrimaryClick?: () => void;
   onSecondaryClick?: () => void;
 }
 
@@ -23,10 +23,14 @@ const Hero: React.FC<HeroProps> = ({
   description = "A secure LMS for exclusive content with progress tracking and payouts. Build your audience and monetize your expertise effortlessly.",
   primaryBtnText = "Join as Creator",
   secondaryBtnText = "Explore Courses",
-  onPrimaryClick = () => console.log("Join Creator Clicked"),
   onSecondaryClick = () => console.log("Explore Courses Clicked")
 }) => {
-  
+  const router = useRouter(); 
+
+  const handleJoinClick = () => {
+    router.push("/signUp");
+  };
+
   return (
     <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden bg-[#FFFFFF] pt-24 lg:pt-16">
       {/* Background Glow Effect - Mint Mist color */}
@@ -34,7 +38,7 @@ const Hero: React.FC<HeroProps> = ({
       
       <div className="container mx-auto px-6 md:px-12 py-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
         
-        {/* TEXT CONTENT: Production-level typography [cite: 21, 22] */}
+        {/* TEXT CONTENT: Production-level typography */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -44,7 +48,7 @@ const Hero: React.FC<HeroProps> = ({
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] text-[#064E3B] tracking-tight">
             {title} 
-            <span className="text-[#10b981] mt-2">
+            <span className="text-[#10b981] mt-2 block">
               {highlightText}
             </span>
           </h1>
@@ -56,9 +60,9 @@ const Hero: React.FC<HeroProps> = ({
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5">
             {/* Primary Action: Emerald High color */}
             <motion.button 
-              whileHover={{ scale: 1.05, backgroundColor: "#059669" }} // Action Hover
+              whileHover={{ scale: 1.05, backgroundColor: "#059669" }}
               whileTap={{ scale: 0.95 }}
-              onClick={onPrimaryClick}
+              onClick={handleJoinClick} // Successfully navigates to /signUp
               className="w-full sm:w-auto bg-[#10B981] text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-[#10B981]/30"
             >
               {primaryBtnText}
@@ -77,7 +81,7 @@ const Hero: React.FC<HeroProps> = ({
           </div>
         </motion.div>
 
-        {/* GRAPHIC SIDE: Responsive Visuals [cite: 10, 31] */}
+        {/* GRAPHIC SIDE: Responsive Visuals */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -85,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({
           className="flex-1 relative w-full max-w-[500px] lg:max-w-none order-2"
         >
           <div className="relative w-full aspect-square flex items-center justify-center">
-             {/* Main Graphic Card Placeholder [cite: 43] */}
+             {/* Main Graphic Card Placeholder */}
              <div className="relative w-[90%] h-[80%] bg-white rounded-[3rem] border border-[#D1FAE5] shadow-2xl overflow-hidden p-6 rotate-3 hover:rotate-0 transition-all duration-700 ease-in-out">
                 <div className="w-full h-full bg-gradient-to-tr from-[#F0FDF4] to-white rounded-[2.5rem] flex flex-col items-center justify-center p-8">
                    <div className="w-20 h-20 bg-[#D1FAE5] rounded-3xl mb-6 flex items-center justify-center">
@@ -98,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({
                 </div>
              </div>
              
-             {/* Floating Revenue Badge [cite: 31] */}
+             {/* Floating Revenue Badge */}
              <motion.div 
                animate={{ y: [0, -15, 0] }}
                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}

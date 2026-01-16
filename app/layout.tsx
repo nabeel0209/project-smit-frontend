@@ -31,12 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-<Navbar />
-       <main className="pt-15 md:pt-7">
-          {children}
-        </main>
         <Providers>
-        {children}
+          <main className="pt-15 md:pt-7">{children}</main>
+          {/* {children} */}
         </Providers>
       </body>
     </html>
