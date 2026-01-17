@@ -58,13 +58,13 @@ const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* --- MAIN NAVBAR --- */}
-      <nav className={`fixed w-full top-0 left-0 z-[100] transition-all duration-300 ${
+      <nav className={`fixed w-full top-0 left-0 z-100 transition-all duration-300 ${
         scrolled || isOpen ? "bg-white shadow-sm py-3" : "bg-white py-5"
       } border-b border-[#D1FAE5]`}>
         <div className="flex items-center justify-between px-6 md:px-12 max-w-7xl mx-auto relative">
           
           {/* Logo Section */}
-          <Link href="/" className="flex items-center gap-2 group z-[110]">
+          <Link href="/" className="flex items-center gap-2 group z-110">
             <span className="font-bold text-xl text-[#064E3B] tracking-tight">{brandName}</span>
           </Link>
 
@@ -102,7 +102,7 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Right Section - Main Action Button Only */}
-          <div className="hidden md:flex items-center z-[110]">
+          <div className="hidden md:flex items-center z-110">
             <button 
               onClick={handleAuthAction}
               className="bg-[#10B981] text-white px-8 py-2.5 rounded-full font-bold hover:bg-[#059669] transition-all shadow-lg active:scale-95"
@@ -112,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Mobile Hamburger Button */}
-          <div className="md:hidden z-[110]">
+          <div className="md:hidden z-110">
             <button 
               onClick={() => setIsOpen(!isOpen)} 
               className="text-[#064E3B] p-2"
@@ -125,13 +125,13 @@ const Navbar: React.FC<NavbarProps> = ({
 
       {/* --- MOBILE DRAWER SYSTEM --- */}
       <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] md:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-80 md:hidden transition-opacity duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsOpen(false)}
       />
 
-      <div className={`fixed top-0 right-0 h-full w-[300px] bg-white z-[90] shadow-2xl md:hidden transition-transform duration-300 ease-in-out transform ${
+      <div className={`fixed top-0 right-0 h-full w-75 bg-white z-90 shadow-2xl md:hidden transition-transform duration-300 ease-in-out transform ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}>
         <div className="flex flex-col h-full pt-28 px-8 pb-8 overflow-y-auto">

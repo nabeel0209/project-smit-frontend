@@ -86,12 +86,12 @@ const Hero: React.FC<HeroProps> = ({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex-1 relative w-full max-w-[500px] lg:max-w-none order-2"
+          className="flex-1 relative w-full max-w-125 lg:max-w-none order-2"
         >
           <div className="relative w-full aspect-square flex items-center justify-center">
             {/* Main Graphic Card Placeholder */}
             <div className="relative w-[90%] h-[80%] bg-white rounded-[3rem] border border-[#D1FAE5] shadow-2xl overflow-hidden p-6 rotate-3 hover:rotate-0 transition-all duration-700 ease-in-out">
-              <div className="w-full h-full bg-gradient-to-tr from-[#F0FDF4] to-white rounded-[2.5rem] flex flex-col items-center justify-center p-8">
+              <div className="w-full h-full bg-linear-to-tr from-[#F0FDF4] to-white rounded-[2.5rem] flex flex-col items-center justify-center p-8">
                 <div className="w-20 h-20 bg-[#D1FAE5] rounded-3xl mb-6 flex items-center justify-center">
                   <div className="w-12 h-12 bg-[#10B981] rounded-full animate-pulse shadow-inner" />
                 </div>

@@ -22,7 +22,7 @@ export default async function CourseDetail({
             {course.category}
           </span>
           <span className="opacity-30">/</span>
-          <span className="truncate max-w-[200px]">{course.title}</span>
+          <span className="truncate max-w-50">{course.title}</span>
         </nav>
 
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
@@ -31,7 +31,7 @@ export default async function CourseDetail({
               <img
                 src={course.thumbnail}
                 alt={course.title}
-                className="w-full h-auto rounded-[32px] object-cover"
+                className="w-full h-auto rounded-4xl object-cover"
               />
             </div>
           </div>
@@ -54,7 +54,7 @@ export default async function CourseDetail({
               </div>
             </div>
 
-            <div className="p-8 bg-white border border-[#D1FAE5] rounded-[32px] shadow-sm">
+            <div className="p-8 bg-white border border-[#D1FAE5] rounded-4xl shadow-sm">
               <div className="flex flex-col mb-6">
                 <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-[0.2em] mb-1">
                   Price
