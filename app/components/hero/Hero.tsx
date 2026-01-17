@@ -2,11 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-<<<<<<< HEAD
-import { useRouter } from 'next/navigation';
-=======
 import Navbar from '../navbar/Navbar';
->>>>>>> 3085256f06980aceaafd10de5be45866b68a5e92
+import { useRouter } from 'next/navigation';
 
 /**
  * Standard Props for Backend Integration
