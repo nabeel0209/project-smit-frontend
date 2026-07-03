@@ -17,17 +17,21 @@ interface HeroProps {
   secondaryBtnText?: string;
   onSecondaryClick?: () => void;
 }
-
+ 
 const Hero: React.FC<HeroProps> = ({
   title = "Sell your knowledge",
   highlightText = "Learn from creators.",
   description = "A secure LMS for exclusive content with progress tracking and payouts. Build your audience and monetize your expertise effortlessly.",
-  primaryBtnText = "Join as Creator",
-  secondaryBtnText = "Explore Courses",
+  primaryBtnText = "Explore Courses",
+  secondaryBtnText = "Join as Creator",
   onSecondaryClick = () => console.log("Explore Courses Clicked"),
 }) => {
   const router = useRouter();
 
+  const handleExploreClick = () => {
+    router.push("/signUp");
+  };
+  
   const handleJoinClick = () => {
     router.push("/signUp");
   };
@@ -60,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({
             <motion.button
               whileHover={{ scale: 1.05, backgroundColor: "#059669" }}
               whileTap={{ scale: 0.95 }}
-              onClick={onSecondaryClick}
+              onClick={handleExploreClick} // Successfully navigates to /signUp
               className="w-full sm:w-auto bg-[#10B981] text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-[#10B981]/30"
             >
               {primaryBtnText}

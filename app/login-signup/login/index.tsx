@@ -11,23 +11,20 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 type Inputs = {
   email: string;
   password: string;
 };
 
-
-
 const LoginPage = () => {
-
-
   const [showPass, setShowPass] = useState<boolean>(false);
   const handlePass = (): void => {
     setShowPass((prev) => !prev);
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     register,
@@ -35,8 +32,6 @@ const LoginPage = () => {
     reset,
     formState: { errors },
   } = useForm<Inputs>();
-
-
 
   const { mutate, isPending } = useMutation({
     mutationFn: signInUser,
@@ -53,8 +48,6 @@ const LoginPage = () => {
       toast.error(msg);
     },
   });
-
-
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     mutate(data);
@@ -133,22 +126,27 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 flex flex-col items-center gap-2">
-            <div className="flex gap-4">
-              <button className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 cursor-pointer">
-                <GoogleIcon />
-              </button>
+          <div className="mt-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400 whitespace-nowrap">
+                Or continue with
+              </span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <GoogleAuthButton />
               <button className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 cursor-pointer">
                 <FacebookIcon />
               </button>
             </div>
 
-            <p className="text-xs text-gray-400">Or continue with:</p>
-            <p className="text-sm">
-              Don't have account?{" "}
-              <Link href="/signUp">
+            <p className="text-sm text-center">
+              Already have an account?{" "}
+              <Link href="/login">
                 <span className="text-blue-500 font-semibold cursor-pointer">
-                  Sign Up
+                  Log In
                 </span>
               </Link>
             </p>

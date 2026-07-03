@@ -44,16 +44,18 @@ export default function UserSidebar() {
   const BACKEND_API = process.env.NEXT_PUBLIC_API_URL;
 
   const handleLogout = async () => {
+    const token = localStorage.getItem("token");
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.post(`${BACKEND_API}/api/auth/logout`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    } catch (err: any) {
-      console.error("Logout API Failed, continuing anyway", err);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+    } catch (err) {
+      console.error("Logout API failed, continuing anyway", err);
     } finally {
-      logout();
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       router.push("/login");
     }
   };
@@ -72,7 +74,7 @@ export default function UserSidebar() {
       <aside
         className={cn(
           "fixed inset-y-0 right-0 z-40 w-64 bg-white border-l md:border-l-0 border-gray-200 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 md:border-r",
-          isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"
+          isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0",
         )}
       >
         <div className="flex flex-col h-full">
@@ -102,7 +104,7 @@ export default function UserSidebar() {
                     "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-[#10B981] text-white shadow-lg shadow-emerald-100"
-                      : "text-gray-600 hover:bg-emerald-50 hover:text-[#10B981]"
+                      : "text-gray-600 hover:bg-emerald-50 hover:text-[#10B981]",
                   )}
                 >
                   <item.icon size={20} />

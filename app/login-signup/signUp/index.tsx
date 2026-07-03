@@ -1,4 +1,5 @@
 "use client";
+
 import FacebookIcon from "@/public/icons/facebookIcon";
 import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
@@ -9,10 +10,15 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpUser } from "@/app/services/auth";
+import { signUpCreator } from "@/app/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { useAuthStore } from "@/app/services/auth.store";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 const registerSchema = yup.object({
   name: yup.string().required().min(3, "name must be atleast 3 chars"),
@@ -22,7 +28,7 @@ const registerSchema = yup.object({
     .required("Email is required")
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email (e.g. abc@gmail.com)"
+      "Please enter a valid email (e.g. abc@gmail.com)",
     ),
   password: yup
     .string()
@@ -31,7 +37,7 @@ const registerSchema = yup.object({
     .max(20, "Maximum 20 characters")
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d).{8,}$/,
-      "Password must contain at least 1 letter and 1 number."
+      "Password must contain at least 1 letter and 1 number.",
     ),
   gender: yup
     .string()
@@ -54,7 +60,7 @@ const SignUpPage = () => {
     setShowPass((prev) => !prev);
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     register,
@@ -209,7 +215,7 @@ const SignUpPage = () => {
 
             <button
               disabled={isPending}
-              className="w-full text-white bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer"
+              className="w-full bg-[#10B981] text-white py-3 rounded-full font-semibold shadow-md shadow-green-200 hover:bg-[#059669] transition-all cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -223,22 +229,27 @@ const SignUpPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 flex flex-col items-center gap-2">
-            <div className="flex gap-4">
-              <button className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 cursor-pointer">
-                <GoogleIcon />
-              </button>
+          <div className="mt-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400 whitespace-nowrap">
+                Or continue with
+              </span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <GoogleAuthButton />
               <button className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 cursor-pointer">
                 <FacebookIcon />
               </button>
             </div>
 
-            <p className="text-xs text-gray-400">Or continue with:</p>
-            <p className="text-sm">
-              Have an account?{" "}
+            <p className="text-sm text-center">
+              Already have an account?{" "}
               <Link href="/login">
                 <span className="text-blue-500 font-semibold cursor-pointer">
-                  Sign in
+                  Log In
                 </span>
               </Link>
             </p>

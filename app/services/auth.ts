@@ -8,6 +8,14 @@ const signUpUser = async (data: any) => {
   return res.data;
 };
 
+const signUpCreator = async (data: any) => {
+  const res = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup/creator`,
+    data
+  );
+  return res.data;
+};
+
 const signInUser = async (data: any) => {
   const res = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -21,4 +29,4 @@ const logout = () => {
   localStorage.removeItem("user");
 };
 
-export { signUpUser, signInUser, logout };
+export { signUpUser, signUpCreator, signInUser, logout };
