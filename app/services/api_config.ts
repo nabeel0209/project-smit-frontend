@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ;
 
 export async function apiRequest(path: string, options: RequestInit) {
   const res = await fetch(`${API_BASE}${path}`, {
