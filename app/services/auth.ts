@@ -1,32 +1,23 @@
-import axios from "axios";
+import api from "./axios";
 
 const signUpUser = async (data: any) => {
-  const res = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
-    data
-  );
+  const res = await api.post("/api/auth/signup", data);
   return res.data;
 };
 
 const signUpCreator = async (data: any) => {
-  const res = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup/creator`,
-    data
-  );
+  const res = await api.post("/api/auth/signup/creator", data);
   return res.data;
 };
 
 const signInUser = async (data: any) => {
-  const res = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-    data
-  );
-  return res.data; // Sirf data return karein
+  const res = await api.post("/api/auth/login", data);
+  return res.data;
 };
 
-const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+const logout = async () => {
+  const res = await api.post("/api/auth/logout");
+  return res.data;
 };
 
 export { signUpUser, signUpCreator, signInUser, logout };

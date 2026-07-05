@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import axios from "axios";
+import api from "@/app/services/axios";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
@@ -36,14 +36,11 @@ const GoogleAuthButton = () => {
             if (!credentialResponse.credential) return;
 
             try {
-              const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
-                { idToken: credentialResponse.credential },
-              );
+              const res = await api.post("/api/auth/google", {
+                idToken: credentialResponse.credential,
+              });
 
-              localStorage.setItem("token", res.data.token);
-              localStorage.setItem("user", JSON.stringify(res.data.user));
-              await useAuthStore.getState().fetchUser();
+              useAuthStore.getState().setUser(res.data.user);
               router.push("/User");
             } catch (err: any) {
               const msg =
