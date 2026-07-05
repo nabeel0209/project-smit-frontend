@@ -62,10 +62,12 @@ const LoginPage = () => {
         {/* Left: Brand panel */}
         <div className="w-full md:w-2/5 bg-primary p-10 md:p-12 flex flex-col justify-center relative">
           <div className="absolute top-8 left-8 flex items-center gap-2">
-            <Link href="/" className="flex gap-3 items-center justify-center">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary font-bold text-sm">
-                L
-              </div>
+            <Link href="/" className="flex items-center justify-center">
+              <img
+                src="/icons/siteIcon/logo.svg"
+                alt="Learnix Labs logo"
+                className="w-14 h-14 brightness-0 invert"
+              />
               <span className="text-lg font-semibold text-white">
                 Learnix Labs
               </span>

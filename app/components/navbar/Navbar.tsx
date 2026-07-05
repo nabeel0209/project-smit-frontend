@@ -61,6 +61,11 @@ const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between px-6 md:px-12 container mx-auto relative">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 z-110">
+            <img
+              src="/icons/siteIcon/logo.svg"
+              alt="Learnix Labs logo"
+              className="w-8 h-8"
+            />
             <span className="font-semibold text-lg text-text tracking-tight">
               {brandName}
             </span>
