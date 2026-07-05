@@ -9,20 +9,17 @@ import {
   Home,
   LayoutDashboard,
   BookOpen,
-  CreditCard,
   Settings,
   LogOut,
   Menu,
   X,
-  Compass,
   User,
   HelpCircle,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { logout } from "../../services/auth";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { useAuthStore } from "@/app/services/auth.store";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,23 +38,10 @@ export default function UserSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const BACKEND_API = process.env.NEXT_PUBLIC_API_URL;
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-    } catch (err) {
-      console.error("Logout API failed, continuing anyway", err);
-    } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      router.push("/login");
-    }
+    await useAuthStore.getState().logout();
+    router.push("/login");
   };
 
   return (

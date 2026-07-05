@@ -1,7 +1,6 @@
 "use client";
 import { signInUser } from "@/app/services/auth";
 import FacebookIcon from "@/public/icons/facebookIcon";
-import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
 import ShowEyeIcon from "@/public/icons/showEyeIcon";
 import { useMutation } from "@tanstack/react-query";
@@ -9,9 +8,10 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
+import { useAuthStore } from "@/app/services/auth.store";
 
 type Inputs = {
   email: string;
@@ -39,11 +39,9 @@ const LoginPage = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: signInUser,
     onSuccess: (result) => {
-      //  Success logic
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      useAuthStore.getState().setUser(result.user);
       toast.success("Logged in successfully!");
-      reset(); // Form reset
+      reset();
       router.push("/User");
     },
     onError: (err: any) => {

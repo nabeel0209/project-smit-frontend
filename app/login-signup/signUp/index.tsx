@@ -1,7 +1,6 @@
 "use client";
 
 import FacebookIcon from "@/public/icons/facebookIcon";
-import GoogleIcon from "@/public/icons/googleIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
 import ShowEyeIcon from "@/public/icons/showEyeIcon";
 import Link from "next/link";
@@ -10,13 +9,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpUser } from "@/app/services/auth";
-import { signUpCreator } from "@/app/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import { useAuthStore } from "@/app/services/auth.store";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
@@ -77,10 +73,9 @@ const SignUpPage = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: signUpUser,
     onSuccess: (result) => {
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-      toast.success("Account created successfully! ");
-      reset(); // Form clear karein
+      useAuthStore.getState().setUser(result.user);
+      toast.success("Account created successfully!");
+      reset();
       router.push("/User");
     },
 

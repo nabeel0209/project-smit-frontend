@@ -1,7 +1,5 @@
-// app/store/auth.store.ts
 import { create } from "zustand";
-import axios from "axios";
-import api from "./axios";
+import api from "../services/axios"; // adjust path to match your actual axios.ts location
 
 interface User {
   _id: string;
@@ -17,30 +15,28 @@ interface AuthState {
   user: User | null;
   setUser: (user: User) => void;
   fetchUser: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set: any) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  setUser: (user: any) => set({ user }),
+  setUser: (user) => set({ user }),
   fetchUser: async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const res = await api.get("/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
+      const res = await api.get("/api/user/me");
       set({ user: res.data });
     } catch (err) {
       console.error(err);
       set({ user: null });
     }
   },
-  logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    set({ user: null });
+  logout: async () => {
+    try {
+      await api.post("/api/auth/logout");
+    } catch (err) {
+      console.error("Logout API failed, continuing anyway", err);
+    } finally {
+      set({ user: null });
+    }
   },
 }));
