@@ -1,3 +1,4 @@
+import ContactUs from "./components/Contact/contact";
 import ForCreators from "./components/creaters/Creaters";
 import CTASection from "./components/CtaSection/CtaSection";
 import Features from "./components/features/Featuers";
@@ -15,6 +16,7 @@ export default function Home() {
       <ForLearnersSection />
       <ForCreators />
       <SecurityTrust />
+      <ContactUs />
       <CTASection />
     </main>
   );

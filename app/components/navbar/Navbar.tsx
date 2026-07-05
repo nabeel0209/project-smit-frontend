@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
 
 interface NavLink {
   name: string;
@@ -12,38 +12,34 @@ interface NavLink {
 
 interface NavbarProps {
   brandName?: string;
-  isLoggedIn?: boolean; 
-  onLogout?: () => void; 
+  isLoggedIn?: boolean;
+  onLogout?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ 
-  brandName = "BrandName",
-  isLoggedIn = false, 
-  onLogout 
+const Navbar: React.FC<NavbarProps> = ({
+  brandName = "Learnix Labs",
+  isLoggedIn = false,
+  onLogout,
 }) => {
   const pathname = usePathname();
-  const router = useRouter(); 
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
   }, [isOpen]);
 
   const navLinks: NavLink[] = [
-    { name: 'Features', href: '#features' },
-    { name: 'How it Works', href: '#how-it-works' },
-    { name: 'Pricing', href: '#pricing' },
+    { name: "Features", href: "#features" },
+    { name: "How it Works", href: "#how-it-works" },
+    { name: "Contact Us", href: "#contact" },
   ];
 
   const handleAuthAction = () => {
@@ -51,117 +47,119 @@ const Navbar: React.FC<NavbarProps> = ({
     if (isLoggedIn && onLogout) {
       onLogout();
     } else {
-      router.push('/signUp');
+      router.push("/signUp");
     }
   };
 
   return (
     <>
-      {/* --- MAIN NAVBAR --- */}
-      <nav className={`fixed w-full top-0 left-0 z-100 transition-all duration-300 ${
-        scrolled || isOpen ? "bg-white shadow-sm py-3" : "bg-white py-5"
-      } border-b border-[#D1FAE5]`}>
-        <div className="flex items-center justify-between px-6 md:px-12 max-w-7xl mx-auto relative">
-          
-          {/* Logo Section */}
-          <Link href="/" className="flex items-center gap-2 group z-110">
-            <span className="font-bold text-xl text-[#064E3B] tracking-tight">{brandName}</span>
+      <nav
+        className={`fixed w-full top-0 left-0 z-100 transition-all duration-300 bg-background/80 backdrop-blur-md border-b border-border-soft ${
+          scrolled || isOpen ? "py-3" : "py-4"
+        }`}
+      >
+        <div className="flex items-center justify-between px-6 md:px-12 container mx-auto relative">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 z-110">
+            <span className="font-semibold text-lg text-text tracking-tight">
+              {brandName}
+            </span>
           </Link>
 
-          {/* Desktop Navigation - CENTERED (Now including Log In) */}
-          <div className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          {/* Desktop nav links - centered */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className={`group relative py-1 font-bold transition-colors ${
-                  pathname === link.href ? "text-[#10B981]" : "text-[#64748B] hover:text-[#064E3B]"
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative py-1 text-sm font-medium transition-colors ${
+                  pathname === link.href
+                    ? "text-primary"
+                    : "text-text-muted hover:text-text"
                 }`}
               >
                 {link.name}
-                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2.5px] bg-[#10B981] transition-all duration-300 ${
-                  pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-                }`}></span>
               </Link>
             ))}
 
-            {/* Log In Moved here next to Pricing */}
             {!isLoggedIn && (
-              <Link 
-                href="/login" 
-                className={`group relative py-1 font-bold transition-colors ${
-                  pathname === '/login' ? "text-[#10B981]" : "text-[#64748B] hover:text-[#064E3B]"
+              <Link
+                href="/login"
+                className={`relative py-1 text-sm font-medium transition-colors ${
+                  pathname === "/login"
+                    ? "text-primary"
+                    : "text-text-muted hover:text-text"
                 }`}
               >
                 Log In
-                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2.5px] bg-[#10B981] transition-all duration-300 ${
-                  pathname === '/login' ? "w-full" : "w-0 group-hover:w-full"
-                }`}></span>
               </Link>
             )}
           </div>
 
-          {/* Right Section - Main Action Button Only */}
+          {/* Right action button */}
           <div className="hidden md:flex items-center z-110">
-            <button 
+            <button
               onClick={handleAuthAction}
-              className="bg-[#10B981] text-white px-8 py-2.5 rounded-full font-bold hover:bg-[#059669] transition-all shadow-lg active:scale-95"
+              className="bg-primary text-black px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-primary-hover transition-colors"
             >
               {isLoggedIn ? "Logout" : "Sign Up"}
             </button>
           </div>
 
-          {/* Mobile Hamburger Button */}
+          {/* Mobile hamburger */}
           <div className="md:hidden z-110">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="text-[#064E3B] p-2"
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-text p-2"
             >
-              {isOpen ? <X size={32} /> : <Menu size={32} />}
+              {isOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* --- MOBILE DRAWER SYSTEM --- */}
-      <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-80 md:hidden transition-opacity duration-300 ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      {/* Mobile drawer overlay */}
+      <div
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-80 md:hidden transition-opacity duration-300 ${
+          isOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsOpen(false)}
       />
 
-      <div className={`fixed top-0 right-0 h-full w-75 bg-white z-90 shadow-2xl md:hidden transition-transform duration-300 ease-in-out transform ${
-        isOpen ? "translate-x-0" : "translate-x-full"
-      }`}>
+      {/* Mobile drawer panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-72 bg-white z-90 shadow-xl md:hidden transition-transform duration-300 ease-in-out transform ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="flex flex-col h-full pt-28 px-8 pb-8 overflow-y-auto">
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-7">
             {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                onClick={() => setIsOpen(false)} 
-                className="text-2xl font-bold text-[#064E3B]"
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="text-lg font-medium text-text"
               >
                 {link.name}
               </Link>
             ))}
-            
+
             {!isLoggedIn && (
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-bold text-[#64748B]"
+                className="text-lg font-medium text-text-muted"
               >
                 Log In
               </Link>
             )}
 
-            {/* <div className="h-[1px] bg-slate-100 w-full" /> */}
-
-            <button 
-              onClick={handleAuthAction} 
-              className="w-full bg-[#10B981] text-white py-4 rounded-2xl font-bold text-xl shadow-xl mt-4"
+            <button
+              onClick={handleAuthAction}
+              className="w-full bg-primary text-white py-3.5 rounded-full font-semibold text-base mt-2"
             >
               {isLoggedIn ? "Logout" : "Sign Up"}
             </button>

@@ -1,118 +1,189 @@
 "use client";
 
-import React from 'react';
-import { 
-  CloudUpload, 
-  TrendingUp, 
-  CalendarDays, 
-  BarChart4, 
-  LucideIcon 
-} from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  TrendingUp,
+  Users,
+  Star,
+  ArrowUpRight,
+  LucideIcon,
+} from "lucide-react";
 
-/**
- * 1. Interface Definition (Strict Type Safety)
- * Readonly ensures the data remains immutable during runtime.
- */
-export interface CreatorFeature {
-  readonly id: string | number;
+interface ValueProp {
   readonly title: string;
   readonly description: string;
   readonly Icon: LucideIcon;
-  readonly path: string;
 }
 
-/**
- * 2. Props Interface (Backend Friendly)
- */
-interface ForCreatorsProps {
-  features?: CreatorFeature[];
-  sectionTitle?: string;
-  onAction?: (path: string) => void; // For backend routing or analytics logic
-}
-
-// Global Static Data (Fallback)
-const DEFAULT_FEATURES: CreatorFeature[] = [
+const VALUE_PROPS: ValueProp[] = [
   {
-    id: "upload-01",
-    title: "Upload Courses",
-    description: "Easily publish your video lessons & resources.",
-    Icon: CloudUpload,
-    path: "/dashboard/create"
-  },
-  {
-    id: "track-02",
-    title: "Track Earnings",
-    description: "Monitor your revenue, engage in real-time.",
+    title: "Revenue, tracked automatically",
+    description:
+      "Every enrollment, upsell, and renewal rolls up into one clear number — no spreadsheets.",
     Icon: TrendingUp,
-    path: "/dashboard/analytics"
   },
   {
-    id: "payout-03",
-    title: "Monthly Payouts",
-    description: "Receive reliable, secure payments every month.",
-    Icon: CalendarDays,
-    path: "/dashboard/payouts"
+    title: "Payouts on a fixed schedule",
+    description:
+      "Get paid the same day every month, wired directly to your account. No invoices to chase.",
+    Icon: Users,
   },
   {
-    id: "engage-04",
-    title: "Engagement Analytics",
-    description: "Understand your audience with detailed insights.",
-    Icon: BarChart4,
-    path: "/dashboard/insights"
-  }
+    title: "See what's actually working",
+    description:
+      "Completion rates, ratings, and drop-off points for every course, in plain language.",
+    Icon: Star,
+  },
 ];
 
-const ForCreators: React.FC<ForCreatorsProps> = ({ 
-  features = DEFAULT_FEATURES, 
-  sectionTitle = "For Creators",
-  onAction = (path) => console.log(`Redirecting to: ${path}`)
-}) => {
-  
+const SPARKLINE_POINTS = [30, 45, 38, 58, 50, 72, 65, 88];
+
+const CreatorOverviewCard = () => {
+  const path = SPARKLINE_POINTS.map(
+    (p: number, i: number) =>
+      `${(i / (SPARKLINE_POINTS.length - 1)) * 100},${100 - p}`,
+  ).join(" L");
+
+  const stats = [
+    { label: "Students enrolled", value: "1,284" },
+    { label: "Courses live", value: "6" },
+    { label: "Avg. rating", value: "4.9" },
+  ];
+
   return (
-    <section className="py-24 bg-white selection:bg-[#D1FAE5] selection:text-[#064E3B]">
-      <div className="container mx-auto px-6 md:px-12">
-        
-        {/* Section Heading */}
-        <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-[#064E3B] tracking-tight">
-            {sectionTitle}
-          </h2>
+    <div className="group relative bg-white border border-border-soft rounded-3xl p-8 transition-all duration-300 hover:border-primary hover:shadow-lg hover:-translate-y-1">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center text-primary font-semibold text-sm">
+            SM
+          </div>
+          <div>
+            <p className="text-sm font-medium text-text">Sarah Mitchell</p>
+            <p className="text-xs text-text-muted">This month</p>
+          </div>
         </div>
+        <span className="text-xs font-medium text-primary bg-primary-soft px-2.5 py-1 rounded-full">
+          +18%
+        </span>
+      </div>
 
-        {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-          {features.map((feature: CreatorFeature) => (
-            <article 
-              key={feature.id}
-              onClick={() => onAction(feature.path)}
-              className="group bg-white p-10 md:p-14 rounded-[2.5rem] border border-[#D1FAE5] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.08)] flex flex-col items-center text-center transition-all duration-500 hover:shadow-2xl hover:border-[#10B981] hover:-translate-y-2 cursor-pointer"
-            >
-              {/* Icon Container with Polish */}
-              <div className="mb-10 text-[#10B981] group-hover:scale-110 transition-transform duration-300">
-                <feature.Icon 
-                  size={70} 
-                  strokeWidth={1.2} 
-                  aria-hidden="true" 
-                />
-              </div>
+      <p className="text-4xl font-bold text-text mb-1">$8,940</p>
+      <p className="text-sm text-text-muted mb-5">Total earnings</p>
 
-              {/* Textual Content */}
-              <h3 className="text-2xl md:text-3xl font-bold text-[#064E3B] mb-4">
-                {feature.title}
-              </h3>
+      <svg
+        viewBox="0 0 100 40"
+        preserveAspectRatio="none"
+        className="w-full h-16 mb-6"
+      >
+        <motion.polyline
+          points={`0,${40 - SPARKLINE_POINTS[0] * 0.4} L${path
+            .split(" L")
+            .map((pt) => {
+              const [x, y] = pt.split(",").map(Number);
+              return `${x},${y * 0.4}`;
+            })
+            .join(" L")}`}
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="2"
+          vectorEffect="non-scaling-stroke"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+        />
+      </svg>
 
-              <p className="text-[#64748B] text-lg leading-relaxed max-w-xs font-medium">
-                {feature.description}
-              </p>
+      <div className="space-y-3 border-t border-border-soft pt-5">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="flex items-center justify-between text-sm"
+          >
+            <span className="text-text-muted">{s.label}</span>
+            <span className="font-medium text-text">{s.value}</span>
+          </div>
+        ))}
+      </div>
 
-              {/* Visual Action Indicator */}
-              <div className="mt-8 overflow-hidden h-6">
-                 <span className="block text-[#10B981] font-bold transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
-                    Get Started →
-                 </span>
-              </div>
-            </article>
-          ))}
+      <div className="flex items-center gap-1 text-sm font-medium text-primary mt-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        View full dashboard
+        <ArrowUpRight size={15} strokeWidth={2} />
+      </div>
+    </div>
+  );
+};
+
+const ForCreators: React.FC = () => {
+  return (
+    <section className="py-10 md:py-15 bg-background">
+      <div className="container mx-auto px-6 md:px-12">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-3xl md:text-4xl font-bold text-text text-center mb-4"
+        >
+          For creators
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="text-text-muted text-center max-w-xl mx-auto mb-20"
+        >
+          Built for creators who teach for a living.
+        </motion.p>
+
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left: value props */}
+          <div>
+            <p className="text-text-muted leading-relaxed mb-10">
+              Everything you need to price, publish, and get paid for your
+              courses — without stitching together five different tools.
+            </p>
+
+            <div className="space-y-7">
+              {VALUE_PROPS.map((v, i) => (
+                <motion.div
+                  key={v.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: i * 0.1,
+                    ease: "easeOut",
+                  }}
+                  className="flex gap-4"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center text-primary shrink-0">
+                    <v.Icon size={18} strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p className="text-text font-medium mb-1">{v.title}</p>
+                    <p className="text-sm text-text-muted leading-relaxed">
+                      {v.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: single overview card */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <CreatorOverviewCard />
+          </motion.div>
         </div>
       </div>
     </section>
