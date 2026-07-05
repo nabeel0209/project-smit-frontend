@@ -24,9 +24,10 @@ const GoogleAuthButton = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 border border-border-soft text-text text-sm font-medium py-3 rounded-full hover:border-primary hover:bg-surface transition-colors cursor-pointer"
       >
         <GoogleIcon />
+        Continue with Google
       </button>
 
       <div ref={hiddenBtnRef} className="hidden">
