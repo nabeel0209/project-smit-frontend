@@ -1,147 +1,223 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../navbar/Navbar";
 import { useRouter } from "next/navigation";
 
-/**
- * Standard Props for Backend Integration
- * Follows "clean, modular" instruction
- */
 interface HeroProps {
   title?: string;
   highlightText?: string;
   description?: string;
   primaryBtnText?: string;
   secondaryBtnText?: string;
-  onSecondaryClick?: () => void;
 }
- 
+
+const productStates = [
+  {
+    label: "Course Progress",
+    value: "78% Complete",
+    accent: "78%",
+    bars: [70, 45, 90, 30],
+  },
+  {
+    label: "Payout Received",
+    value: "$2,450.00",
+    accent: "$",
+    bars: [90, 60, 40, 80],
+  },
+  {
+    label: "New Enrollment",
+    value: "Alex joined 'React Mastery'",
+    accent: "1",
+    bars: [50, 85, 65, 40],
+  },
+];
+
 const Hero: React.FC<HeroProps> = ({
-  title = "Sell your knowledge",
-  highlightText = "Learn from creators.",
-  description = "A secure LMS for exclusive content with progress tracking and payouts. Build your audience and monetize your expertise effortlessly.",
-  primaryBtnText = "Explore Courses",
-  secondaryBtnText = "Join as Creator",
-  onSecondaryClick = () => console.log("Explore Courses Clicked"),
+  title = "Sell your knowledge,",
+  highlightText = "learn from creators.",
+  description = "One place to build, sell, and access exclusive content. Fully trackable, fully monetizable, zero hassle.",
+  primaryBtnText = "Become a Creator",
+  secondaryBtnText = "Explore Courses",
 }) => {
   const router = useRouter();
+  const [activeState, setActiveState] = React.useState(0);
 
-  const handleExploreClick = () => {
-    router.push("/signUp");
-  };
-  
-  const handleJoinClick = () => {
-    router.push("/signUp");
-  };
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveState((prev) => (prev + 1) % productStates.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const current = productStates[activeState];
 
   return (
-    <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden bg-[#FFFFFF] pt-24 lg:pt-16">
+    <section className="relative w-full bg-background pt-28 lg:pt-36 pb-20 overflow-hidden">
       <Navbar />
-      {/* Background Glow Effect - Mint Mist color */}
-      <div className="absolute top-0 right-0 -z-10 w-[50%] h-[50%] bg-[#F0FDF4] blur-[120px] rounded-full opacity-60" />
 
-      <div className="container mx-auto px-6 md:px-12 py-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-        {/* TEXT CONTENT: Production-level typography */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex-1 text-center lg:text-left z-10 order-1"
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] text-[#064E3B] tracking-tight">
-            {title}
-            <span className="text-[#10b981] mt-2 block">{highlightText}</span>
-          </h1>
+      <div className="container mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        {/* Left: text content */}
+        <div className="flex-1 text-center lg:text-left relative z-10">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.15] text-text tracking-tight"
+          >
+            {title} <span className="text-primary">{highlightText}</span>
+          </motion.h1>
 
-          <p className="mt-8 text-base md:text-xl text-[#64748B] max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+          <p className="mt-6 text-base md:text-lg text-text-muted max-w-xl mx-auto lg:mx-0 leading-relaxed">
             {description}
           </p>
 
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5">
-            {/* Primary Action: Emerald High color */}
-            <motion.button
-              whileHover={{ scale: 1.05, backgroundColor: "#059669" }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleExploreClick} // Successfully navigates to /signUp
-              className="w-full sm:w-auto bg-[#10B981] text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-[#10B981]/30"
+          <div className="mt-9 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <button
+              onClick={() => router.push("/signUp")}
+              className="w-full sm:w-auto bg-primary text-black px-7 py-3 rounded-full font-semibold text-sm hover:bg-primary-hover transition-all inline-flex items-center justify-center gap-2"
             >
               {primaryBtnText}
-            </motion.button>
+              <ArrowIcon />
+            </button>
 
-            {/* Secondary Action: Transparent with Glass Emerald border */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleJoinClick} // Successfully navigates to /signUp
-              className="w-full sm:w-auto border-2 border-[#D1FAE5] text-[#059669] px-10 py-4 rounded-full font-bold text-lg hover:bg-[#F0FDF4] hover:border-[#10B981] transition-all flex items-center justify-center gap-2 group"
+            <button
+              onClick={() => router.push("/courses")}
+              className="w-full sm:w-auto bg-black text-white border border-border-soft text-text px-7 py-3 rounded-full font-semibold text-sm hover:border-primary transition-all"
             >
               {secondaryBtnText}
-              <span className="transition-transform group-hover:translate-x-1">
-                →
-              </span>
-            </motion.button>
+            </button>
           </div>
-        </motion.div>
 
-        {/* GRAPHIC SIDE: Responsive Visuals */}
+          <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs text-text-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <CheckIcon /> No credit card required
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckIcon /> Set up in minutes
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckIcon /> Cancel anytime
+            </span>
+          </div>
+        </div>
+
+        {/* Right: browser-chrome mockup */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex-1 relative w-full max-w-125 lg:max-w-none order-2"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="flex-1 w-full relative z-10"
         >
-          <div className="relative w-full aspect-square flex items-center justify-center">
-            {/* Main Graphic Card Placeholder */}
-            <div className="relative w-[90%] h-[80%] bg-white rounded-[3rem] border border-[#D1FAE5] shadow-2xl overflow-hidden p-6 rotate-3 hover:rotate-0 transition-all duration-700 ease-in-out">
-              <div className="w-full h-full bg-linear-to-tr from-[#F0FDF4] to-white rounded-[2.5rem] flex flex-col items-center justify-center p-8">
-                <div className="w-20 h-20 bg-[#D1FAE5] rounded-3xl mb-6 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-[#10B981] rounded-full animate-pulse shadow-inner" />
+          <div className="bg-white border border-border-soft rounded-3xl shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-border-soft bg-surface">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+              <span className="ml-3 text-xs text-text-muted">
+                yourlms.app/dashboard
+              </span>
+            </div>
+
+            <div className="p-6 flex flex-col gap-5">
+              <div className="bg-surface rounded-2xl p-5 min-h-[150px] flex flex-col justify-between">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeState}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <div className="w-10 h-10 bg-primary-soft rounded-xl flex items-center justify-center text-primary font-bold text-sm mb-3">
+                      {current.accent}
+                    </div>
+                    <p className="text-xs text-text-muted">{current.label}</p>
+                    <p className="text-lg font-semibold text-text mt-1">
+                      {current.value}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+
+                <div className="flex items-end gap-2 h-14 mt-4">
+                  {current.bars.map((h, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex-1 bg-primary rounded-md"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${h}%` }}
+                      transition={{ duration: 0.5, delay: i * 0.05 }}
+                    />
+                  ))}
                 </div>
-                <div className="space-y-4 w-full px-10">
-                  <div className="h-2.5 w-full bg-[#D1FAE5] rounded-full" />
-                  <div className="h-2.5 w-2/3 bg-[#D1FAE5] rounded-full mx-auto" />
-                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                {["React Mastery", "UI Design Basics", "Growth Marketing"].map(
+                  (course, i) => (
+                    <div
+                      key={course}
+                      className="flex items-center gap-3 bg-surface rounded-xl px-4 py-2.5"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-primary-soft flex items-center justify-center text-primary text-xs font-semibold">
+                        {i + 1}
+                      </div>
+                      <p className="text-sm text-text font-medium truncate">
+                        {course}
+                      </p>
+                    </div>
+                  ),
+                )}
               </div>
             </div>
 
-            {/* Floating Revenue Badge */}
-            <motion.div
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              className="absolute -bottom-4 -left-4 md:-left-8 bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-2xl border border-[#D1FAE5] z-20"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#10B981] rounded-2xl flex items-center justify-center text-white">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-black text-[#64748B] tracking-widest">
-                    Revenue Status
-                  </p>
-                  <p className="text-2xl font-black text-[#064E3B]">
-                    $2,450.00
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+            <div className="flex gap-1.5 px-6 pb-5">
+              {productStates.map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1 rounded-full transition-all ${
+                    i === activeState ? "w-8 bg-primary" : "w-4 bg-border-soft"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
     </section>
   );
 };
+
+const CheckIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#10b981"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const ArrowIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="7" y1="17" x2="17" y2="7" />
+    <polyline points="7 7 17 7 17 17" />
+  </svg>
+);
 
 export default Hero;
