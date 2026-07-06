@@ -36,7 +36,7 @@ const GoogleAuthButton = () => {
             if (!credentialResponse.credential) return;
 
             try {
-              const res = await api.post("/api/auth/google", {
+              const res = await api.post("/auth/google", {
                 idToken: credentialResponse.credential,
               });
 

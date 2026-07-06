@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import api from "../services/axios"; // adjust path to match your actual axios.ts location
+import api from "../services/axios";
 
 interface User {
   _id: string;
@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => set({ user }),
   fetchUser: async () => {
     try {
-      const res = await api.get("/api/user/me");
+      const res = await api.get("/user/me");
       set({ user: res.data });
     } catch (err) {
       console.error(err);
@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   logout: async () => {
     try {
-      await api.post("/api/auth/logout");
+      await api.post("/auth/logout");
     } catch (err) {
       console.error("Logout API failed, continuing anyway", err);
     } finally {

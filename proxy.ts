@@ -1,18 +1,15 @@
-// proxy.ts
 import { NextRequest, NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
 const PROTECTED_PATHS = ["/User"];
 const AUTH_PATHS = ["/login", "/signUp"];
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-async function checkAuth(request: NextRequest): Promise<boolean> {
-  const token = request.cookies.get("token")?.value;
+async function isTokenValid(token: string | undefined): Promise<boolean> {
   if (!token) return false;
-
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/me`, {
-      headers: { Cookie: `token=${token}` },
-    });
-    return res.ok;
+    await jwtVerify(token, JWT_SECRET);
+    return true;
   } catch {
     return false;
   }
@@ -20,23 +17,20 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get("token")?.value;
 
-  const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
-  const isAuthPage = AUTH_PATHS.some((path) => pathname.startsWith(path));
+  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
   if (isProtected) {
-    const valid = await checkAuth(request);
-    if (!valid) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+    const valid = await isTokenValid(token);
+    if (!valid) return NextResponse.redirect(new URL("/login", request.url));
     return NextResponse.next();
   }
 
   if (isAuthPage) {
-    const valid = await checkAuth(request);
-    if (valid) {
-      return NextResponse.redirect(new URL("/User", request.url));
-    }
+    const valid = await isTokenValid(token);
+    if (valid) return NextResponse.redirect(new URL("/User", request.url));
     return NextResponse.next();
   }
 

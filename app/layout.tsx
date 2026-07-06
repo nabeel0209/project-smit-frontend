@@ -25,7 +25,8 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icons/siteIcon/logo.svg",
   },
-  description: "A secure LMS for exclusive content with progress tracking and payouts.",
+  description:
+    "A secure LMS for exclusive content with progress tracking and payouts.",
 };
 
 export default function RootLayout({
