@@ -2,13 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Twitter,
-  Linkedin,
-  Github,
-  Youtube,
-  ArrowRight,
-} from "lucide-react";
+import { Twitter, Linkedin, Github, Youtube, ArrowRight } from "lucide-react";
 
 interface FooterColumn {
   readonly title: string;
@@ -51,19 +45,26 @@ export default function Footer(): React.JSX.Element {
   };
 
   return (
-    <footer id='contact' className="bg-white border-t border-border-soft">
+    <footer id="contact" className="bg-white border-t border-border-soft">
       <div className="container mx-auto px-6 md:px-12 py-16 md:py-10">
         <div className="grid lg:grid-cols-[1.4fr_2fr] gap-14 mb-16">
           {/* Brand + newsletter */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">
-                L
+            <div className="flex items-center mb-4">
+              <div className="flex items-center justify-center text-white font-bold text-sm">
+                <img
+                  src="/icons/siteIcon/logo.svg"
+                  alt="Learnix Labs logo"
+                  className="w-12 h-12"
+                />
               </div>
-              <span className="text-lg font-semibold text-text">yourlms</span>
+              <span className="text-lg font-semibold text-text">
+                Learnix <span className="text-primary">Labs</span>
+              </span>
             </div>
             <p className="text-sm text-text-muted leading-relaxed max-w-sm mb-6">
-              One place to build, sell, and access exclusive content. Fully trackable, fully monetizable, zero hassle.
+              One place to build, sell, and access exclusive content. Fully
+              trackable, fully monetizable, zero hassle.
             </p>
 
             <form onSubmit={handleSubscribe} className="flex gap-2 max-w-sm">
@@ -91,7 +92,9 @@ export default function Footer(): React.JSX.Element {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {FOOTER_COLUMNS.map((col) => (
               <div key={col.title}>
-                <p className="text-sm font-semibold text-text mb-4">{col.title}</p>
+                <p className="text-sm font-semibold text-text mb-4">
+                  {col.title}
+                </p>
                 <ul className="space-y-3">
                   {col.links.map((link) => (
                     <li key={link}>
@@ -112,7 +115,7 @@ export default function Footer(): React.JSX.Element {
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-soft">
           <p className="text-xs text-text-muted">
-            © {new Date().getFullYear()} yourlms. All rights reserved.
+            © {new Date().getFullYear()} Learnix Labs. All rights reserved.
           </p>
 
           <div className="flex items-center gap-3">
