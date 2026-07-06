@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import logo from "./logo.png";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   LayoutDashboard,
@@ -18,7 +16,6 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/services/auth.store";
 
 function cn(...inputs: ClassValue[]) {
@@ -27,9 +24,9 @@ function cn(...inputs: ClassValue[]) {
 
 const navItems = [
   { icon: Home, label: "Home", href: "/User" },
-  { icon: LayoutDashboard, label: "Dashboard", href: "/User/Dashboard/" },
-  { icon: BookOpen, label: "My Courses", href: "/Dashboard-user/courses" },
-  { icon: User, label: "Profile", href: "/User/Profile/" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/User/Dashboard" },
+  { icon: BookOpen, label: "My Courses", href: "/User/Dashboard/courses" },
+  { icon: User, label: "Profile", href: "/User/Profile" },
   { icon: HelpCircle, label: "Help", href: "/Help" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
@@ -46,33 +43,33 @@ export default function UserSidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button - Moved to Right */}
+      {/* Mobile menu button */}
       <button
-        className="fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-md md:hidden border border-gray-100"
+        className="fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-sm border border-border-soft md:hidden"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={22} /> : <Menu size={22} />}
       </button>
 
-      {/* Sidebar Container - Mobile Right Side */}
+      {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-40 w-64 bg-white border-l md:border-l-0 border-gray-200 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 md:border-r",
+          "fixed inset-y-0 right-0 z-40 w-64 bg-white border-l md:border-l-0 border-border-soft transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 md:border-r",
           isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0",
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo - Shifted slightly right on desktop */}
-          <div className="p-6 md:pl-10">
-            <Link href="/Dashboard-user" className="flex items-center gap-2">
-              <Image
-                src={logo}
-                alt="Logo"
-                width={180}
-                height={50}
-                className="h-12 w-auto object-contain"
-                priority
+          {/* Logo */}
+          <div className="p-6">
+            <Link href="/User" className="flex items-center gap-2">
+              <img
+                src="/icons/siteIcon/logo.svg"
+                alt="Learnix Labs"
+                className="w-9 h-9"
               />
+              <span className="text-base font-semibold text-text">
+                Learnix Labs
+              </span>
             </Link>
           </div>
 
@@ -85,13 +82,13 @@ export default function UserSidebar() {
                   key={item.label}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
                     isActive
-                      ? "bg-[#10B981] text-white shadow-lg shadow-emerald-100"
-                      : "text-gray-600 hover:bg-emerald-50 hover:text-[#10B981]",
+                      ? "bg-primary text-white"
+                      : "text-text-muted hover:bg-surface hover:text-text",
                   )}
                 >
-                  <item.icon size={20} />
+                  <item.icon size={18} />
                   {item.label}
                 </Link>
               );
@@ -99,22 +96,22 @@ export default function UserSidebar() {
           </nav>
 
           {/* Logout */}
-          <div className="p-4 border-t border-gray-100">
+          <div className="mt-auto p-4 border-t border-border-soft">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-all duration-200"
+              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
               Logout
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
