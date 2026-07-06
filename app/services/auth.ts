@@ -1,22 +1,22 @@
 import api from "./axios";
 
 const signUpUser = async (data: any) => {
-  const res = await api.post("/api/auth/signup", data);
+  const res = await api.post("/auth/signup", data);
   return res.data;
 };
 
 const signUpCreator = async (data: any) => {
-  const res = await api.post("/api/auth/signup/creator", data);
+  const res = await api.post("/auth/signup/creator", data);
   return res.data;
 };
 
 const signInUser = async (data: any) => {
-  const res = await api.post("/api/auth/login", data);
+  const res = await api.post("/auth/login", data);
   return res.data;
 };
 
 const logout = async () => {
-  const res = await api.post("/api/auth/logout");
+  const res = await api.post("/auth/logout");
   return res.data;
 };
 
