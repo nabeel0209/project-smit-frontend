@@ -13,6 +13,9 @@ import {
 import StatCard from "./components/StatCard";
 import CourseCard from "./components/CourseCard";
 import { StatSkeleton, CourseSkeleton } from "./components/SkeletonLoader";
+import StreakStrip from "./components/StreakStrip";
+import WeeklyGoal from "./components/WeeklyGoa";
+import UpcomingReminders from "./components/UpcomingReminder";
 
 const DUMMY_STATS = [
   { title: "Courses Enrolled", value: 8, icon: BookOpen },
@@ -129,6 +132,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Streak Strip */}
+      <StreakStrip />
+
       {/* Stats */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -182,10 +188,19 @@ export default function DashboardPage() {
           </section>
 
           {/* Payments */}
+          {/* Payments */}
           <section className="bg-white p-6 rounded-2xl border border-border-soft">
-            <h2 className="text-lg font-bold text-text mb-5">
-              Recent transactions
-            </h2>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-text">
+                Recent transactions
+              </h2>
+              <Link
+                href="/User/Billing"
+                className="text-primary text-sm font-medium hover:underline flex items-center gap-1"
+              >
+                View all <ChevronRight size={15} />
+              </Link>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -197,7 +212,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-soft/70">
-                  {DUMMY_PAYMENTS.map((payment) => (
+                  {DUMMY_PAYMENTS.slice(0, 3).map((payment) => (
                     <tr key={payment.id}>
                       <td className="py-3.5 text-sm font-medium text-text">
                         {payment.course}
@@ -257,6 +272,9 @@ export default function DashboardPage() {
               ))}
             </div>
           </section>
+
+          <WeeklyGoal />
+          <UpcomingReminders />
         </div>
       </div>
     </div>
