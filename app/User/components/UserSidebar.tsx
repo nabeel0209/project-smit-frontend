@@ -13,6 +13,7 @@ import {
   X,
   User,
   HelpCircle,
+  CreditCard,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -26,6 +27,7 @@ const navItems = [
   { icon: Home, label: "Home", href: "/User" },
   { icon: LayoutDashboard, label: "Dashboard", href: "/User/Dashboard" },
   { icon: BookOpen, label: "My Courses", href: "/User/Dashboard/courses" },
+  { icon: CreditCard, label: "Billing", href: "/User/Billing" },
   { icon: User, label: "Profile", href: "/User/Profile" },
   { icon: HelpCircle, label: "Help", href: "/Help" },
   { icon: Settings, label: "Settings", href: "/settings" },
