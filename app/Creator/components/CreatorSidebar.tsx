@@ -4,16 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Home,
   LayoutDashboard,
   BookOpen,
+  Users,
+  Wallet,
+  BarChart3,
   Settings,
   LogOut,
   Menu,
   X,
   User,
   HelpCircle,
-  CreditCard,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -24,16 +25,17 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { icon: Home, label: "Home", href: "/User" },
-  { icon: LayoutDashboard, label: "Dashboard", href: "/User/Dashboard" },
-  { icon: BookOpen, label: "My Courses", href: "/User/Dashboard/courses" },
-  { icon: CreditCard, label: "Billing", href: "/User/Billing" },
-  { icon: User, label: "Profile", href: "/User/Profile" },
-  { icon: HelpCircle, label: "Help", href: "/User/Help" },
-  { icon: Settings, label: "Settings", href: "/User/Settings" },
+  { icon: LayoutDashboard, label: "Overview", href: "/Creator" },
+  { icon: BookOpen, label: "My Courses", href: "/Creator/Courses" },
+  { icon: Users, label: "Students", href: "/Creator/Students" },
+  { icon: BarChart3, label: "Analytics", href: "/Creator/Analytics" },
+  { icon: Wallet, label: "Payouts", href: "/Creator/Payouts" },
+  { icon: User, label: "Profile", href: "/Creator/Profile" },
+  { icon: HelpCircle, label: "Help", href: "/Creator/Help" },
+  { icon: Settings, label: "Settings", href: "/Creator/Settings" },
 ];
 
-export default function UserSidebar() {
+export default function CreatorSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -63,15 +65,20 @@ export default function UserSidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6">
-            <Link href="/User" className="flex items-center gap-2">
+            <Link href="/Creator" className="flex items-center gap-2">
               <img
                 src="/icons/siteIcon/logo.svg"
                 alt="Learnix Labs"
                 className="w-9 h-9"
               />
-              <span className="text-base font-semibold text-text">
-                Learnix Labs
-              </span>
+              <div className="flex flex-col leading-tight">
+                <span className="text-base font-semibold text-text">
+                  Learnix Labs
+                </span>
+                <span className="text-[11px] text-primary font-medium">
+                  Creator Studio
+                </span>
+              </div>
             </Link>
           </div>
 

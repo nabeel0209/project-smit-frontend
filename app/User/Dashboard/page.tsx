@@ -14,7 +14,7 @@ import StatCard from "./components/StatCard";
 import CourseCard from "./components/CourseCard";
 import { StatSkeleton, CourseSkeleton } from "./components/SkeletonLoader";
 import StreakStrip from "./components/StreakStrip";
-import WeeklyGoal from "./components/WeeklyGoa";
+import WeeklyGoal from "./components/WeeklyGoal";
 import UpcomingReminders from "./components/UpcomingReminder";
 
 const DUMMY_STATS = [
