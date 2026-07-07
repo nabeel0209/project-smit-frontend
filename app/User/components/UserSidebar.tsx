@@ -30,7 +30,7 @@ const navItems = [
   { icon: CreditCard, label: "Billing", href: "/User/Billing" },
   { icon: User, label: "Profile", href: "/User/Profile" },
   { icon: HelpCircle, label: "Help", href: "/Help" },
-  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Settings, label: "Settings", href: "/User/Settings" },
 ];
 
 export default function UserSidebar() {
