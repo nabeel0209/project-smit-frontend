@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./provider/provider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Manrope } from "next/font/google";
+import AuthBootstrap from "./components/AuthBootstrap";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
         >
           <Providers>
+            <AuthBootstrap />
             <main className="pt-15 md:pt-0">{children}</main>
           </Providers>
         </GoogleOAuthProvider>

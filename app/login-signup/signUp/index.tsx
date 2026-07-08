@@ -8,11 +8,11 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { signUpUser } from "@/app/services/auth";
+import { signUpCreator, signUpUser } from "@/app/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/app/services/auth.store";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
@@ -55,11 +55,15 @@ const inputClass =
 
 const SignUpPage = () => {
   const [showPass, setShowPass] = useState<boolean>(false);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const isCreatorSignup = searchParams.get("role") === "creator";
+
   const handlePass = (): void => {
     setShowPass((prev) => !prev);
   };
-
-  const router = useRouter();
 
   const {
     register,
@@ -71,12 +75,20 @@ const SignUpPage = () => {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: signUpUser,
+    mutationFn: isCreatorSignup ? signUpCreator : signUpUser,
+
     onSuccess: (result) => {
       useAuthStore.getState().setUser(result.user);
-      toast.success("Account created successfully!");
+
+      toast.success(
+        isCreatorSignup
+          ? "Creator account created successfully!"
+          : "Account created successfully!",
+      );
+
       reset();
-      router.push("/User");
+
+      router.push(isCreatorSignup ? "/Creator" : "/User");
     },
 
     onError: (err: any) => {
@@ -90,6 +102,7 @@ const SignUpPage = () => {
       ...data,
       dob: new Date(data.dob),
     };
+
     mutate(formatedData);
   };
 
@@ -112,14 +125,16 @@ const SignUpPage = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 mt-16 md:mt-0">
-            Come join us!
+            {isCreatorSignup ? "Join us!" : "Come join us!"}
           </h1>
+
           <p className="text-white/85 leading-relaxed mb-10">
-            We&apos;re excited to have you here. Create an account to start
-            learning, or start selling your own courses.
+            {isCreatorSignup
+              ? "Create your creator account and start building courses, reaching learners, and growing your teaching business."
+              : "We’re excited to have you here. Create an account to start learning from creators and exploring quality courses."}
           </p>
 
-          <Link href="/login">
+          <Link href={isCreatorSignup ? "/login?role=creator" : "/login"}>
             <div className="inline-block border border-white/40 text-white text-sm font-medium px-5 py-3 rounded-full hover:bg-white/10 transition-colors cursor-pointer w-fit">
               Already have an account? Log in.
             </div>
@@ -129,7 +144,7 @@ const SignUpPage = () => {
         {/* Right: Form panel */}
         <div className="w-full md:w-3/5 p-8 md:p-12">
           <h1 className="text-3xl md:text-4xl font-bold text-text text-center mb-10">
-            Create an account
+            {isCreatorSignup ? "Start teaching with us" : "Create an account"}
           </h1>
 
           <form className="space-y-7" onSubmit={handleSubmit(onSubmit)}>
@@ -175,6 +190,7 @@ const SignUpPage = () => {
                   </span>
                 )}
               </div>
+
               <div className="flex flex-col w-1/2">
                 <select
                   className={`${inputClass} appearance-none cursor-pointer text-text-muted`}
@@ -222,13 +238,16 @@ const SignUpPage = () => {
             </label>
 
             <button
+              type="submit"
               disabled={isPending}
-              className="w-full border border-primary text-primary py-3.5 rounded-full font-semibold hover:bg-primary hover:text-black transition-colors cursor-pointer"
+              className="w-full border border-primary text-primary py-3.5 rounded-full font-semibold hover:bg-primary hover:text-black transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <div className="flex justify-center items-center">
                   <Loader2 className="animate-spin" size={24} />
                 </div>
+              ) : isCreatorSignup ? (
+                "Join as Creator"
               ) : (
                 "Signup"
               )}
@@ -246,7 +265,7 @@ const SignUpPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <GoogleAuthButton />
+                <GoogleAuthButton role={isCreatorSignup ? "creator" : "user"} />
 
                 <button
                   type="button"

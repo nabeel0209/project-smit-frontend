@@ -39,6 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const navLinks: NavLink[] = [
     { name: "Features", href: "#features" },
     { name: "How it Works", href: "#how-it-works" },
+    { name: "Become a Creator", href: "/signUp?role=creator" },
     { name: "Contact Us", href: "#contact" },
   ];
 

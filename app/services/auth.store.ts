@@ -5,7 +5,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: string;
+  role: "user" | "creator" | "admin";
   dob?: string;
   gender?: string;
   [key: string]: any;
@@ -13,6 +13,7 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  isAuthLoading: boolean;
   setUser: (user: User) => void;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
@@ -20,23 +21,26 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  setUser: (user) => set({ user }),
+  isAuthLoading: true,
+
+  setUser: (user) => set({ user, isAuthLoading: false }),
+
   fetchUser: async () => {
     try {
       const res = await api.get("/user/me");
-      set({ user: res.data });
+      set({ user: res.data, isAuthLoading: false });
     } catch (err) {
-      console.error(err);
-      set({ user: null });
+      set({ user: null, isAuthLoading: false });
     }
   },
+
   logout: async () => {
     try {
       await api.post("/auth/logout");
     } catch (err) {
       console.error("Logout API failed, continuing anyway", err);
     } finally {
-      set({ user: null });
+      set({ user: null, isAuthLoading: false });
     }
   },
 }));
