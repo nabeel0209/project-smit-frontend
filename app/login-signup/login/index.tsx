@@ -1,4 +1,5 @@
 "use client";
+
 import { signInUser } from "@/app/services/auth";
 import FacebookIcon from "@/public/icons/facebookIcon";
 import HideEyeIcon from "@/public/icons/hideEyeIcon";
@@ -9,7 +10,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 import { useAuthStore } from "@/app/services/auth.store";
 
@@ -21,13 +22,23 @@ type Inputs = {
 const inputClass =
   "w-full bg-transparent border-b border-border-soft pb-3 text-text placeholder:text-text-muted outline-none focus:border-primary transition-colors";
 
+const getDashboardPath = (role?: string) => {
+  if (role === "creator") return "/Creator";
+  if (role === "admin") return "/Admin";
+  return "/User";
+};
+
 const LoginPage = () => {
   const [showPass, setShowPass] = useState<boolean>(false);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const isCreatorLogin = searchParams.get("role") === "creator";
+
   const handlePass = (): void => {
     setShowPass((prev) => !prev);
   };
-
-  const router = useRouter();
 
   const {
     register,
@@ -38,12 +49,17 @@ const LoginPage = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: signInUser,
+
     onSuccess: (result) => {
-      useAuthStore.getState().setUser(result.user);
+      const user = result.user;
+
+      useAuthStore.getState().setUser(user);
       toast.success("Logged in successfully!");
       reset();
-      router.push("/User");
+
+      router.push(getDashboardPath(user.role));
     },
+
     onError: (err: any) => {
       const msg = err.response?.data?.message || "An error occurred";
       toast.error(msg);
@@ -72,16 +88,17 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 mt-16 md:mt-0">
-            Welcome back!
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 mt-24 md:mt-20">
+            {isCreatorLogin ? "Welcome back, creator!" : "Welcome back!"}
           </h1>
 
           <p className="text-white/85 leading-relaxed mb-10">
-            Sign in to continue learning, managing your courses, or growing your
-            teaching business.
+            {isCreatorLogin
+              ? "Sign in to manage your courses, track enrollments, and continue growing your teaching business."
+              : "Sign in to continue learning, managing your courses, or exploring new content."}
           </p>
 
-          <Link href="/signUp">
+          <Link href={isCreatorLogin ? "/signUp?role=creator" : "/signUp"}>
             <div className="inline-block border border-white/40 text-white text-sm font-medium px-5 py-3 rounded-full hover:bg-white/10 transition-colors cursor-pointer w-fit">
               Don't have an account? Sign up.
             </div>
@@ -91,7 +108,7 @@ const LoginPage = () => {
         {/* Right: Form panel */}
         <div className="w-full md:w-3/5 p-8 md:p-12">
           <h1 className="text-3xl md:text-4xl font-bold text-text text-center mb-10">
-            Login to your account
+            {isCreatorLogin ? "Login as Creator" : "Login to your account"}
           </h1>
 
           <form className="space-y-7" onSubmit={handleSubmit(onSubmit)}>
@@ -102,6 +119,11 @@ const LoginPage = () => {
                 {...register("email", { required: true })}
                 className={inputClass}
               />
+              {errors.email && (
+                <span className="text-red-500 text-[13px]">
+                  Email is required
+                </span>
+              )}
             </div>
 
             <div className="relative">
@@ -111,6 +133,11 @@ const LoginPage = () => {
                 {...register("password", { required: true })}
                 className={inputClass}
               />
+              {errors.password && (
+                <span className="text-red-500 text-[13px]">
+                  Password is required
+                </span>
+              )}
 
               <div
                 className="absolute right-0 bottom-3 cursor-pointer"
@@ -137,12 +164,14 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full border border-primary text-primary py-3.5 rounded-full font-semibold hover:bg-primary hover:text-black transition-colors cursor-pointer"
+              className="w-full border border-primary text-primary py-3.5 rounded-full font-semibold hover:bg-primary hover:text-black transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <div className="flex justify-center items-center">
                   <Loader2 className="animate-spin" size={24} />
                 </div>
+              ) : isCreatorLogin ? (
+                "Login as Creator"
               ) : (
                 "Login"
               )}
@@ -160,7 +189,7 @@ const LoginPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <GoogleAuthButton />
+                <GoogleAuthButton role={isCreatorLogin ? "creator" : "user"} />
 
                 <button
                   type="button"

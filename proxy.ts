@@ -1,17 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PROTECTED_PATHS = ["/User"];
+type UserRole = "user" | "creator" | "admin";
+
+type TokenPayload = {
+  id: string;
+  role: UserRole;
+};
+
 const AUTH_PATHS = ["/login", "/signUp"];
+
+const ROLE_DASHBOARD: Record<UserRole, string> = {
+  user: "/User",
+  creator: "/Creator",
+  admin: "/Admin",
+};
+
+const PROTECTED_ROUTES: Record<string, UserRole[]> = {
+  "/User": ["user"],
+  "/Creator": ["creator", "admin"],
+  "/Admin": ["admin"],
+};
+
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-async function isTokenValid(token: string | undefined): Promise<boolean> {
-  if (!token) return false;
+async function getTokenPayload(
+  token: string | undefined,
+): Promise<TokenPayload | null> {
+  if (!token) return null;
+
   try {
-    await jwtVerify(token, JWT_SECRET);
-    return true;
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+
+    if (
+      typeof payload.id !== "string" ||
+      !["user", "creator", "admin"].includes(payload.role as string)
+    ) {
+      return null;
+    }
+
+    return {
+      id: payload.id,
+      role: payload.role as UserRole,
+    };
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -19,18 +52,37 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
-  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
+  const user = await getTokenPayload(token);
 
-  if (isProtected) {
-    const valid = await isTokenValid(token);
-    if (!valid) return NextResponse.redirect(new URL("/login", request.url));
+  const matchedProtectedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
+    pathname.startsWith(route),
+  );
+
+  const isAuthPage = AUTH_PATHS.some((path) => pathname.startsWith(path));
+
+  if (matchedProtectedRoute) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    const allowedRoles = PROTECTED_ROUTES[matchedProtectedRoute];
+
+    if (!allowedRoles.includes(user.role)) {
+      return NextResponse.redirect(
+        new URL(ROLE_DASHBOARD[user.role], request.url),
+      );
+    }
+
     return NextResponse.next();
   }
 
   if (isAuthPage) {
-    const valid = await isTokenValid(token);
-    if (valid) return NextResponse.redirect(new URL("/User", request.url));
+    if (user) {
+      return NextResponse.redirect(
+        new URL(ROLE_DASHBOARD[user.role], request.url),
+      );
+    }
+
     return NextResponse.next();
   }
 
@@ -38,5 +90,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/User/:path*", "/login", "/signUp"],
+  matcher: [
+    "/User/:path*",
+    "/Creator/:path*",
+    "/Admin/:path*",
+    "/login",
+    "/signUp",
+  ],
 };

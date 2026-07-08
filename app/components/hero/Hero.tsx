@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({
 
           <div className="mt-9 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
             <button
-              onClick={() => router.push("/signUp")}
+              onClick={() => router.push("/signUp?role=creator")}
               className="w-full sm:w-auto bg-primary text-black px-7 py-3 rounded-full font-semibold text-sm hover:bg-primary-hover transition-all inline-flex items-center justify-center gap-2"
             >
               {primaryBtnText}
@@ -83,8 +83,8 @@ const Hero: React.FC<HeroProps> = ({
             </button>
 
             <button
-              onClick={() => router.push("/courses")}
-              className="w-full sm:w-auto bg-black text-white border border-border-soft text-text px-7 py-3 rounded-full font-semibold text-sm hover:border-primary transition-all"
+              onClick={() => router.push("/signUp")}
+              className="w-full sm:w-auto bg-black text-white border border-border-soft px-7 py-3 rounded-full font-semibold text-sm hover:border-primary transition-all"
             >
               {secondaryBtnText}
             </button>
