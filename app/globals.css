@@ -3,7 +3,7 @@
 @theme {
   --font-sans: var(--font-sans), "system-ui", sans-serif;
   --color-background: #f7f8f4;
-  --color-surface: #eef0ea;
+  --color-surface: #f2f2f2;
   --color-primary: #10b981;
   --color-primary-hover: #0d9668;
   --color-primary-soft: #d1fae5;

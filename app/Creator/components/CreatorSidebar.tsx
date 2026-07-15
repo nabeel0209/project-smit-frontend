@@ -35,7 +35,11 @@ const navItems = [
   { icon: Settings, label: "Settings", href: "/Creator/Settings" },
 ];
 
-export default function CreatorSidebar() {
+export default function CreatorSidebar({
+  isLocked = false,
+}: {
+  isLocked?: boolean;
+}) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -65,7 +69,11 @@ export default function CreatorSidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6">
-            <Link href="/Creator" className="flex items-center gap-2">
+            <Link
+              href={isLocked ? "/Creator/Profile" : "/Creator"}
+              className="flex items-center gap-2"
+            >
+              {" "}
               <img
                 src="/icons/siteIcon/logo.svg"
                 alt="Learnix Labs"
@@ -86,10 +94,24 @@ export default function CreatorSidebar() {
           <nav className="px-4 py-4 space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
-              return (
+              const isProfileLink = item.href === "/Creator/Profile";
+              const disabled = isLocked && !isProfileLink;
+              return disabled ? (
+                <div
+                  key={item.label}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
+                    "text-text-muted opacity-40 cursor-not-allowed",
+                  )}
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </div>
+              ) : (
                 <Link
                   key={item.label}
                   href={item.href}
+                  onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
                     isActive

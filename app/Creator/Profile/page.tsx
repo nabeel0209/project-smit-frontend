@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   User,
   Mail,
   MapPin,
   Camera,
-  Lock,
-  Bell,
   Globe,
-  Trash2,
   Github,
   Linkedin,
   Twitter,
@@ -17,41 +14,227 @@ import {
   CheckCircle,
   Edit2,
   Save,
-  ShieldCheck,
-  Link2,
-  Facebook,
-  Monitor,
-  Eye,
-  Download,
-  GraduationCap,
   BadgeCheck,
+  GraduationCap,
+  AlertCircle,
+  Loader2,
+  Lock,
+  AlertTriangle,
 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import {
+  getMyCreatorProfile,
+  updateMyCreatorProfile,
+  CreatorProfile,
+  UpdateCreatorProfilePayload,
+} from "@/app/services/creator";
+
+const inputClass =
+  "w-full px-4 py-3 rounded-xl border border-border-soft bg-surface focus:bg-white focus:border-primary outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-sm text-text";
+
+const categoryOptions = [
+  "Web Development",
+  "Mobile Development",
+  "Data Science",
+  "Artificial Intelligence",
+  "UI/UX Design",
+  "Business",
+  "Marketing",
+  "Cybersecurity",
+];
+
+type FormState = {
+  displayName: string;
+  bio: string;
+  phone: string;
+  location: string;
+  qualification: string;
+  expertise: string;
+  experienceYears: string;
+  teachingExperience: string;
+  skills: string;
+  categories: string[];
+  website: string;
+  twitter: string;
+  linkedin: string;
+  github: string;
+  defaultLanguage: string;
+  payoutCurrency: string;
+  timezone: string;
+  defaultVisibility: "draft" | "public";
+  accountHolderName: string;
+  bankName: string;
+  accountNumber: string;
+  iban: string;
+  payoutMethod: "bank_transfer" | "paypal" | "stripe";
+  paypalEmail: string;
+  stripeAccountId: string;
+  billingCountry: string;
+};
+
+const getInitialForm = (profile: CreatorProfile): FormState => ({
+  displayName: profile.displayName || "",
+  bio: profile.bio || "",
+  phone: profile.phone || "",
+  location: profile.location || "",
+  qualification: profile.qualification || "",
+  expertise: profile.expertise || "",
+  experienceYears: String(profile.experienceYears || 0),
+  teachingExperience: profile.teachingExperience || "",
+  skills: profile.skills?.join(", ") || "",
+  categories: profile.categories || [],
+  website: profile.socialLinks?.website || "",
+  twitter: profile.socialLinks?.twitter || "",
+  linkedin: profile.socialLinks?.linkedin || "",
+  github: profile.socialLinks?.github || "",
+  defaultLanguage: profile.preferences?.defaultLanguage || "English",
+  payoutCurrency: profile.preferences?.payoutCurrency || "USD",
+  timezone: profile.preferences?.timezone || "Asia/Karachi",
+  defaultVisibility: profile.preferences?.defaultVisibility || "draft",
+  accountHolderName: profile.payoutDetails?.accountHolderName || "",
+  bankName: profile.payoutDetails?.bankName || "",
+  accountNumber: profile.payoutDetails?.accountNumber || "",
+  iban: profile.payoutDetails?.iban || "",
+  payoutMethod: profile.payoutDetails?.method || "bank_transfer",
+  paypalEmail: profile.payoutDetails?.paypalEmail || "",
+  stripeAccountId: profile.payoutDetails?.stripeAccountId || "",
+  billingCountry: profile.payoutDetails?.billingCountry || "",
+});
 
 export default function CreatorProfilePage() {
-  const [isEditingPersonal, setIsEditingPersonal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState<FormState | null>(null);
 
-  const [userData] = useState({
-    fullName: "Munib Jahangir",
-    displayName: "Munib_Dev",
-    email: "munibjahangir10@gmail.com",
-    dob: "1998-05-15",
-    gender: "Male",
-    phone: "+92 312 3456789",
-    bio: "Passionate developer and content creator focused on building modern web applications.",
-    location: "Karachi, Pakistan",
-    website: "https://munib.dev",
-    twitter: "@munib_dev",
-    linkedin: "munibjahangir",
-    github: "Munib214",
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["creator-profile"],
+    queryFn: getMyCreatorProfile,
   });
 
-  const handleSavePersonal = () => {
-    setIsEditingPersonal(false);
+  useEffect(() => {
+    if (profile) {
+      setForm(getInitialForm(profile));
+    }
+  }, [profile]);
+
+  const updateMutation = useMutation({
+    mutationFn: updateMyCreatorProfile,
+    onSuccess: (updatedProfile) => {
+      queryClient.invalidateQueries({ queryKey: ["creator-profile"] });
+
+      if (updatedProfile.profileStatus === "pending_admin_review") {
+        toast.success("Profile saved and submitted for admin review.");
+      } else if (updatedProfile.profileStatus === "pending_verification") {
+        toast.success("Profile saved. Verification is still required.");
+      } else {
+        toast.success("Creator profile updated.");
+      }
+
+      setIsEditing(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to update profile.");
+    },
+  });
+
+  if (isLoading || !form) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  if (isError || !profile) {
+    return (
+      <div className="bg-white border border-border-soft rounded-2xl p-8 text-center">
+        <AlertCircle className="mx-auto text-red-500 mb-3" size={32} />
+        <h2 className="text-lg font-bold text-text">
+          Failed to load creator profile
+        </h2>
+        <p className="text-sm text-text-muted mt-1">
+          Please refresh the page or login again.
+        </p>
+      </div>
+    );
+  }
+
+  const user = profile.user;
+
+  const isVerified = profile.emailVerified && profile.phoneVerified;
+
+  const hasPayoutDetails = Boolean(profile.payoutDetails?.connected);
+
+  const isPendingAdminReview = profile.profileStatus === "pending_admin_review";
+
+  const handleChange = (key: keyof FormState, value: string | string[]) => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      return { ...prev, [key]: value };
+    });
   };
 
-  const inputClass =
-    "w-full px-4 py-3 rounded-xl border border-border-soft bg-surface focus:bg-white focus:border-primary outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-sm text-text";
+  const toggleCategory = (category: string) => {
+    setForm((prev) => {
+      if (!prev) return prev;
+
+      const exists = prev.categories.includes(category);
+
+      return {
+        ...prev,
+        categories: exists
+          ? prev.categories.filter((item) => item !== category)
+          : [...prev.categories, category],
+      };
+    });
+  };
+
+  const handleSave = () => {
+    const payload: UpdateCreatorProfilePayload = {
+      displayName: form.displayName,
+      bio: form.bio,
+      phone: form.phone,
+      location: form.location,
+      qualification: form.qualification,
+      expertise: form.expertise,
+      experienceYears: Number(form.experienceYears) || 0,
+      teachingExperience: form.teachingExperience,
+      skills: form.skills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean),
+      categories: form.categories,
+      socialLinks: {
+        website: form.website,
+        twitter: form.twitter,
+        linkedin: form.linkedin,
+        github: form.github,
+      },
+      preferences: {
+        defaultLanguage: form.defaultLanguage,
+        payoutCurrency: form.payoutCurrency,
+        timezone: form.timezone,
+        defaultVisibility: form.defaultVisibility,
+      },
+      payoutDetails: {
+        method: form.payoutMethod,
+        accountHolderName: form.accountHolderName,
+        bankName: form.bankName,
+        accountNumber: form.accountNumber,
+        iban: form.iban,
+        paypalEmail: form.paypalEmail,
+        stripeAccountId: form.stripeAccountId,
+        billingCountry: form.billingCountry,
+      },
+    };
+
+    updateMutation.mutate(payload);
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
@@ -60,234 +243,256 @@ export default function CreatorProfilePage() {
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="relative">
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-primary-soft overflow-hidden bg-surface flex items-center justify-center">
-              <User className="w-10 h-10 md:w-12 md:h-12 text-text-muted" />
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-10 h-10 md:w-12 md:h-12 text-text-muted" />
+              )}
             </div>
-            <button className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors">
+
+            <button
+              type="button"
+              disabled
+              className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full opacity-60 cursor-not-allowed"
+              title="Avatar upload will be added later"
+            >
               <Camera size={16} />
             </button>
           </div>
 
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-text">
-                {userData.fullName}
-              </h1>
+              <h1 className="text-2xl font-bold text-text">{user.name}</h1>
+
               <span className="px-2.5 py-1 rounded-full text-xs font-medium w-fit mx-auto md:mx-0 bg-primary-soft text-primary">
                 Creator
               </span>
+
+              <ProfileStatusBadge status={profile.profileStatus} />
             </div>
+
             <p className="text-text-muted flex items-center justify-center md:justify-start gap-2 text-sm">
               <Mail size={15} />
-              {userData.email}
+              {user.email}
             </p>
-            <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-              <button className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-hover transition-colors">
-                Change picture
-              </button>
-              <button className="px-4 py-2 border border-border-soft text-text-muted rounded-xl text-sm font-medium hover:border-primary transition-colors">
-                Remove avatar
-              </button>
-            </div>
+
+            <p className="text-xs text-text-muted mt-2">
+              Basic signup details are shown here but locked. Creator-specific
+              details can be edited below.
+            </p>
           </div>
         </div>
       </div>
 
+      {profile.profileStatus !== "approved" && (
+        <section
+          className={`rounded-2xl p-5 border flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+            isPendingAdminReview
+              ? "bg-blue-50 border-blue-200"
+              : "bg-amber-50 border-amber-200"
+          }`}
+        >
+          <div className="flex gap-3">
+            <AlertCircle
+              className={
+                isPendingAdminReview ? "text-blue-700" : "text-amber-700"
+              }
+              size={20}
+            />
+
+            <div>
+              <h2
+                className={`font-semibold text-sm ${
+                  isPendingAdminReview ? "text-blue-900" : "text-amber-900"
+                }`}
+              >
+                {isPendingAdminReview
+                  ? "Profile submitted for admin approval"
+                  : !isVerified
+                    ? "Verify your email and phone"
+                    : !hasPayoutDetails
+                      ? "Add your payout method"
+                      : "Profile ready for admin review"}
+              </h2>
+
+              <p
+                className={`text-sm mt-1 ${
+                  isPendingAdminReview ? "text-blue-800" : "text-amber-800"
+                }`}
+              >
+                {isPendingAdminReview
+                  ? "Your profile has been sent for Admin review. This process typically takes ~24 hours. After the review, you'll be able to upload your content and access all creator tools."
+                  : !isVerified
+                    ? "After verification, you’ll be asked to add bank details before admin review."
+                    : !hasPayoutDetails
+                      ? "Your email and phone are verified. Add bank details and save to submit your profile."
+                      : "Save your profile to send it for admin review."}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left column */}
         <div className="md:col-span-2 space-y-8">
-          {/* Personal info */}
+          {/* Signup information */}
+          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
+            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-6">
+              <Lock className="text-primary" size={18} />
+              Signup information
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <ReadonlyField label="Full name" value={user.name} />
+              <ReadonlyField label="Email" value={user.email} />
+              <ReadonlyField
+                label="Date of birth"
+                value={user.dob || "Not set"}
+              />
+              <ReadonlyField label="Gender" value={user.gender || "Not set"} />
+            </div>
+          </section>
+
+          {/* Creator profile */}
           <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-text flex items-center gap-2">
-                <User className="text-primary" size={18} />
-                Personal information
-              </h2>
-              {!isEditingPersonal ? (
+              <div>
+                <h2 className="text-lg font-bold text-text flex items-center gap-2">
+                  <Globe className="text-primary" size={18} />
+                  Public creator profile
+                </h2>
+                <p className="text-sm text-text-muted mt-1">
+                  This is what students and admins will see.
+                </p>
+              </div>
+
+              {!isEditing ? (
                 <button
-                  onClick={() => setIsEditingPersonal(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft rounded-lg transition-colors"
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  disabled={isPendingAdminReview}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Edit2 size={15} /> Edit
                 </button>
               ) : (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setIsEditingPersonal(false)}
+                    type="button"
+                    onClick={() => {
+                      setForm(getInitialForm(profile));
+                      setIsEditing(false);
+                    }}
                     className="px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-surface rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
+
                   <button
-                    onClick={handleSavePersonal}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg transition-colors"
+                    type="button"
+                    onClick={handleSave}
+                    disabled={updateMutation.isPending}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg transition-colors disabled:opacity-60"
                   >
-                    <Save size={15} /> Save
+                    <Save size={15} />
+                    {updateMutation.isPending ? "Saving..." : "Save"}
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Full name
-                </label>
-                <input
-                  type="text"
-                  disabled={!isEditingPersonal}
-                  defaultValue={userData.fullName}
-                  className={inputClass}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Date of birth
-                </label>
-                <input
-                  type="date"
-                  disabled={!isEditingPersonal}
-                  defaultValue={userData.dob}
-                  className={inputClass}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Gender
-                </label>
-                <select
-                  disabled={!isEditingPersonal}
-                  defaultValue={userData.gender}
-                  className={`${inputClass} appearance-none`}
-                >
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Phone number
-                </label>
-                <input
+            <div className="space-y-5">
+              <InputField
+                label="Display name"
+                value={form.displayName}
+                disabled={!isEditing}
+                onChange={(value) => handleChange("displayName", value)}
+              />
+
+              <TextareaField
+                label="Bio"
+                value={form.bio}
+                disabled={!isEditing}
+                rows={4}
+                onChange={(value) => handleChange("bio", value)}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <InputField
+                  label="Phone number"
                   type="tel"
-                  disabled={!isEditingPersonal}
-                  defaultValue={userData.phone}
-                  className={inputClass}
+                  value={form.phone}
+                  disabled={!isEditing}
+                  onChange={(value) => handleChange("phone", value)}
+                />
+
+                <InputField
+                  label="Location"
+                  value={form.location}
+                  disabled={!isEditing}
+                  onChange={(value) => handleChange("location", value)}
                 />
               </div>
             </div>
           </section>
 
-          {/* Public profile */}
+          {/* Professional details */}
           <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-1">
-              <Globe className="text-primary" size={18} />
-              Public creator profile
+            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-6">
+              <GraduationCap className="text-primary" size={18} />
+              Professional details
             </h2>
-            <p className="text-sm text-text-muted mb-6">
-              This is what students see on your course and creator pages.
-            </p>
 
             <div className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Display name
-                </label>
-                <input
-                  type="text"
-                  defaultValue={userData.displayName}
-                  className={inputClass}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Bio
-                </label>
-                <textarea
-                  rows={4}
-                  defaultValue={userData.bio}
-                  className={`${inputClass} resize-none`}
-                />
-              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-text-muted">
-                    Location
-                  </label>
-                  <div className="relative">
-                    <MapPin
-                      size={16}
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                    />
-                    <input
-                      type="text"
-                      defaultValue={userData.location}
-                      className={`${inputClass} pl-10`}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-text-muted">
-                    Verify phone
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="tel"
-                      defaultValue={userData.phone}
-                      className={`flex-1 ${inputClass}`}
-                    />
-                    <button className="px-4 py-2 bg-primary-soft text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition-colors whitespace-nowrap">
-                      Verify
-                    </button>
-                  </div>
-                </div>
+                <InputField
+                  label="Highest qualification"
+                  value={form.qualification}
+                  disabled={!isEditing}
+                  placeholder="BS Computer Science, Diploma, Certification..."
+                  onChange={(value) => handleChange("qualification", value)}
+                />
+
+                <InputField
+                  label="Main expertise"
+                  value={form.expertise}
+                  disabled={!isEditing}
+                  placeholder="MERN Stack, UI/UX, Python..."
+                  onChange={(value) => handleChange("expertise", value)}
+                />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-medium text-text-muted uppercase tracking-wide">
-                  Social links
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    {
-                      icon: Twitter,
-                      placeholder: "Twitter URL",
-                      value: userData.twitter,
-                    },
-                    {
-                      icon: Linkedin,
-                      placeholder: "LinkedIn URL",
-                      value: userData.linkedin,
-                    },
-                    {
-                      icon: Github,
-                      placeholder: "GitHub URL",
-                      value: userData.github,
-                    },
-                    {
-                      icon: Globe,
-                      placeholder: "Website",
-                      value: userData.website,
-                    },
-                  ].map((social, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-border-soft bg-surface"
-                    >
-                      <social.icon
-                        size={17}
-                        className="text-text-muted flex-shrink-0"
-                      />
-                      <input
-                        type="text"
-                        placeholder={social.placeholder}
-                        defaultValue={social.value}
-                        className="bg-transparent outline-none text-sm w-full text-text"
-                      />
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <InputField
+                  label="Years of experience"
+                  type="number"
+                  value={form.experienceYears}
+                  disabled={!isEditing}
+                  onChange={(value) => handleChange("experienceYears", value)}
+                />
+
+                <InputField
+                  label="Skills"
+                  value={form.skills}
+                  disabled={!isEditing}
+                  placeholder="React, Node.js, MongoDB"
+                  onChange={(value) => handleChange("skills", value)}
+                />
               </div>
+
+              <TextareaField
+                label="Teaching experience"
+                value={form.teachingExperience}
+                disabled={!isEditing}
+                rows={4}
+                placeholder="Tell admins about your teaching or mentoring experience..."
+                onChange={(value) => handleChange("teachingExperience", value)}
+              />
             </div>
           </section>
 
@@ -299,404 +504,569 @@ export default function CreatorProfilePage() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Default course language
-                </label>
-                <select className={`${inputClass} appearance-none`}>
-                  <option>English</option>
-                  <option>Urdu</option>
-                  <option>Spanish</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Payout currency
-                </label>
-                <select className={`${inputClass} appearance-none`}>
-                  <option>USD ($)</option>
-                  <option>EUR (€)</option>
-                  <option>PKR (₨)</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Timezone
-                </label>
-                <select className={`${inputClass} appearance-none`}>
-                  <option>Asia/Karachi (GMT+5)</option>
-                  <option>UTC</option>
-                  <option>America/New_York (GMT-5)</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Default course visibility
-                </label>
-                <select className={`${inputClass} appearance-none`}>
-                  <option>Draft until published</option>
-                  <option>Public immediately</option>
-                </select>
-              </div>
+              <SelectField
+                label="Default course language"
+                value={form.defaultLanguage}
+                disabled={!isEditing}
+                options={["English", "Urdu", "Spanish"]}
+                onChange={(value) => handleChange("defaultLanguage", value)}
+              />
+
+              <SelectField
+                label="Payout currency"
+                value={form.payoutCurrency}
+                disabled={!isEditing}
+                options={["USD", "PKR", "EUR"]}
+                onChange={(value) => handleChange("payoutCurrency", value)}
+              />
+
+              <SelectField
+                label="Timezone"
+                value={form.timezone}
+                disabled={!isEditing}
+                options={["Asia/Karachi", "UTC", "America/New_York"]}
+                onChange={(value) => handleChange("timezone", value)}
+              />
+
+              <SelectField
+                label="Default course visibility"
+                value={form.defaultVisibility}
+                disabled={!isEditing}
+                options={["draft", "public"]}
+                onChange={(value) =>
+                  handleChange("defaultVisibility", value as "draft" | "public")
+                }
+              />
             </div>
 
-            <div className="mt-5 space-y-2.5">
+            <div className="mt-6 space-y-2.5">
               <p className="text-sm font-medium text-text">
                 Teaching categories
               </p>
+
               <div className="flex flex-wrap gap-2">
-                {[
-                  "Web Development",
-                  "Design",
-                  "Marketing",
-                  "Data Science",
-                  "Business",
-                ].map((tag) => (
-                  <button
-                    key={tag}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium border border-border-soft text-text-muted hover:border-primary hover:text-primary transition-colors"
-                  >
-                    {tag}
-                  </button>
-                ))}
+                {categoryOptions.map((category) => {
+                  const selected = form.categories.includes(category);
+
+                  return (
+                    <button
+                      key={category}
+                      type="button"
+                      disabled={!isEditing}
+                      onClick={() => toggleCategory(category)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors disabled:cursor-not-allowed ${
+                        selected
+                          ? "bg-primary text-white border-primary"
+                          : "border-border-soft text-text-muted hover:border-primary hover:text-primary"
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </section>
 
-          {/* Two-factor authentication */}
+          {/* Payout Method */}
           <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-5">
-              <ShieldCheck className="text-primary" size={18} />
-              Two-factor authentication
-            </h2>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm font-medium text-text">
-                  Authenticator app
+                <h2 className="text-lg font-bold text-text flex items-center gap-2">
+                  <BadgeCheck className="text-primary" size={18} />
+                  Payout method
+                </h2>
+
+                <p className="text-sm text-text-muted mt-1 max-w-2xl">
+                  Choose how you want to receive creator earnings.
                 </p>
-                <p className="text-xs text-text-muted mt-0.5">Not enabled</p>
               </div>
-              <button className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-hover transition-colors">
-                Enable
-              </button>
-            </div>
-          </section>
 
-          {/* Connected accounts */}
-          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-5">
-              <Link2 className="text-primary" size={18} />
-              Connected accounts
-            </h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl border border-border-soft">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="/icons/googleIcon.svg"
-                    alt="Google"
-                    className="w-5 h-5"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-text">Google</p>
-                    <p className="text-xs text-text-muted">
-                      munibjahangir10@gmail.com
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs text-primary font-medium">
-                  Connected
+              {profile.payoutDetails?.connected && (
+                <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-xs font-semibold w-fit">
+                  Payout method added
                 </span>
+              )}
+            </div>
+
+            {!isVerified && (
+              <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+                Verify your email and phone before adding payout details.
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl border border-border-soft">
-                <div className="flex items-center gap-3">
-                  <Facebook size={20} className="text-text-muted" />
-                  <p className="text-sm font-medium text-text">Facebook</p>
-                </div>
-                <button className="text-xs text-primary font-medium hover:underline">
-                  Connect
-                </button>
+            )}
+
+            {isPendingAdminReview && (
+              <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-800">
+                Your payout details are saved and your profile is already
+                submitted for admin review.
+              </div>
+            )}
+
+            <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3">
+              <AlertTriangle
+                className="text-amber-700 mt-0.5 flex-shrink-0"
+                size={18}
+              />
+
+              <div>
+                <p className="text-sm font-semibold text-amber-900">
+                  Platform fee notice
+                </p>
+
+                <p className="text-sm text-amber-800 mt-1 leading-relaxed">
+                  Learnix Labs deducts 2% from creator earnings for platform
+                  maintenance, payment handling, and service costs.
+                </p>
               </div>
             </div>
-          </section>
 
-          {/* Active sessions */}
-          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-5">
-              <Monitor className="text-primary" size={18} />
-              Active sessions
-            </h2>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
               {[
                 {
-                  device: "Chrome on Windows",
-                  location: "Karachi, PK",
-                  current: true,
+                  label: "Bank transfer",
+                  value: "bank_transfer",
+                  description: "Receive payouts directly in your bank account.",
+                  disabled: false,
                 },
                 {
-                  device: "Safari on iPhone",
-                  location: "Karachi, PK",
-                  current: false,
+                  label: "PayPal",
+                  value: "paypal",
+                  description: "PayPal payouts are coming soon.",
+                  disabled: true,
                 },
-              ].map((session, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-3 rounded-xl border border-border-soft"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-text">
-                      {session.device}
+              ].map((method) => {
+                const isSelected = form.payoutMethod === method.value;
+                const methodDisabled =
+                  method.disabled ||
+                  !isEditing ||
+                  !isVerified ||
+                  isPendingAdminReview;
+
+                return (
+                  <button
+                    key={method.value}
+                    type="button"
+                    disabled={methodDisabled}
+                    onClick={() => {
+                      if (method.disabled) return;
+
+                      handleChange(
+                        "payoutMethod",
+                        method.value as "bank_transfer" | "paypal",
+                      );
+                    }}
+                    className={`text-left p-4 rounded-2xl border transition-all disabled:cursor-not-allowed ${
+                      method.disabled
+                        ? "border-border-soft bg-surface opacity-60"
+                        : isSelected
+                          ? "border-primary bg-primary-soft"
+                          : "border-border-soft bg-surface hover:border-primary"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p
+                        className={`text-sm font-semibold ${
+                          method.disabled
+                            ? "text-text-muted"
+                            : isSelected
+                              ? "text-primary"
+                              : "text-text"
+                        }`}
+                      >
+                        {method.label}
+                      </p>
+
+                      {method.disabled ? (
+                        <span className="px-2 py-0.5 rounded-full bg-white border border-border-soft text-[10px] font-semibold text-text-muted">
+                          Coming soon
+                        </span>
+                      ) : (
+                        <span
+                          className={`w-4 h-4 rounded-full border flex-shrink-0 ${
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-border-soft bg-white"
+                          }`}
+                        />
+                      )}
+                    </div>
+
+                    <p className="text-xs text-text-muted mt-1 leading-relaxed">
+                      {method.description}
                     </p>
-                    <p className="text-xs text-text-muted">
-                      {session.location}
-                    </p>
-                  </div>
-                  {session.current ? (
-                    <span className="text-xs text-primary font-medium">
-                      This device
-                    </span>
-                  ) : (
-                    <button className="text-xs text-red-600 font-medium hover:underline">
-                      Revoke
-                    </button>
-                  )}
-                </div>
-              ))}
+                  </button>
+                );
+              })}
             </div>
+
+            {form.payoutMethod === "bank_transfer" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <InputField
+                  label="Account holder name"
+                  value={form.accountHolderName}
+                  disabled={!isEditing || !isVerified || isPendingAdminReview}
+                  placeholder="Muhammad Nabeel"
+                  onChange={(value) => handleChange("accountHolderName", value)}
+                />
+
+                <InputField
+                  label="Bank name"
+                  value={form.bankName}
+                  disabled={!isEditing || !isVerified || isPendingAdminReview}
+                  placeholder="Meezan Bank"
+                  onChange={(value) => handleChange("bankName", value)}
+                />
+
+                <InputField
+                  label="Account number"
+                  value={form.accountNumber}
+                  disabled={!isEditing || !isVerified || isPendingAdminReview}
+                  placeholder="0123456789012345"
+                  onChange={(value) => handleChange("accountNumber", value)}
+                />
+
+                <InputField
+                  label="IBAN"
+                  value={form.iban}
+                  disabled={!isEditing || !isVerified || isPendingAdminReview}
+                  placeholder="PK36SCBL0000001123456702"
+                  onChange={(value) =>
+                    handleChange("iban", value.toUpperCase())
+                  }
+                />
+
+                <div className="md:col-span-2">
+                  <InputField
+                    label="Billing country"
+                    value={form.billingCountry}
+                    disabled={!isEditing || !isVerified || isPendingAdminReview}
+                    placeholder="Pakistan"
+                    onChange={(value) => handleChange("billingCountry", value)}
+                  />
+                </div>
+              </div>
+            )}
           </section>
         </div>
 
         {/* Right column */}
         <div className="space-y-8">
-          {/* Security */}
-          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-6">
-              <Shield className="text-primary" size={18} />
-              Account & security
-            </h2>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-muted">
-                  Email address
-                </label>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-surface text-text-muted text-sm">
-                  {userData.email}
-                  <Lock size={13} />
-                </div>
-              </div>
-              <div className="pt-2 space-y-3">
-                <h3 className="text-sm font-semibold text-text">
-                  Update password
-                </h3>
-                <input
-                  type="password"
-                  placeholder="Current password"
-                  className={inputClass}
-                />
-                <input
-                  type="password"
-                  placeholder="New password"
-                  className={inputClass}
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm new password"
-                  className={inputClass}
-                />
-                <button className="w-full py-3 bg-text text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
-                  Update password
-                </button>
-              </div>
-              <div className="pt-4 border-t border-border-soft">
-                <button className="w-full py-3 border border-red-200 text-red-600 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors">
-                  Logout from all devices
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* Preferences */}
-          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-6">
-              <Bell className="text-primary" size={18} />
-              Preferences
-            </h2>
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-text">Dark mode</p>
-                  <p className="text-xs text-text-muted">Toggle dark theme</p>
-                </div>
-                <div className="w-11 h-6 bg-border-soft rounded-full relative cursor-pointer">
-                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full" />
-                </div>
-              </div>
-              <div className="space-y-2.5">
-                <p className="text-sm font-medium text-text">
-                  Email notifications
-                </p>
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-primary"
-                    defaultChecked
-                  />
-                  <span className="text-sm text-text-muted">
-                    New enrollments
-                  </span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-primary"
-                    defaultChecked
-                  />
-                  <span className="text-sm text-text-muted">New reviews</span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-primary"
-                    defaultChecked
-                  />
-                  <span className="text-sm text-text-muted">
-                    Payout confirmations
-                  </span>
-                </label>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text">
-                  Language
-                </label>
-                <select className={`${inputClass} appearance-none`}>
-                  <option>English (US)</option>
-                  <option>Urdu</option>
-                  <option>Spanish</option>
-                </select>
-              </div>
-            </div>
-          </section>
-
           {/* Verification */}
           <section className="bg-primary-soft rounded-2xl p-6 md:p-8 border border-primary/20">
             <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-3">
               <BadgeCheck className="text-primary" size={18} />
               Verification
             </h2>
+
             <p className="text-text-muted text-sm mb-5 leading-relaxed">
-              Verified creators build more trust with students and get priority
-              placement.
+              Verified creators build more trust with students and get approval
+              faster.
             </p>
+
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white">
-                <div className="flex items-center gap-2">
-                  <CheckCircle size={16} className="text-primary" />
-                  <span className="text-sm font-medium text-text">
-                    Identity verified
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white">
-                <span className="text-sm font-medium text-text">
-                  Payout account
-                </span>
-                <button className="text-xs text-primary font-semibold hover:underline">
-                  Verify
-                </button>
-              </div>
+              <VerificationItem
+                label="Email verified"
+                verified={profile.emailVerified}
+              />
+
+              <VerificationItem
+                label="Phone verified"
+                verified={profile.phoneVerified}
+              />
+
+              <VerificationItem
+                label="Identity verified"
+                verified={profile.identityVerified}
+              />
+
+              <VerificationItem
+                label="Payout method"
+                verified={Boolean(profile.payoutDetails?.connected)}
+              />
             </div>
           </section>
 
-          {/* Privacy */}
+          {/* Social links */}
+          {/* Social links */}
           <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-5">
-              <Eye className="text-primary" size={18} />
-              Privacy
+            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-3">
+              <Globe className="text-primary" size={18} />
+              Social links
             </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-text">
-                    Public profile
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    Let students see your creator profile
-                  </p>
-                </div>
-                <div className="w-11 h-6 bg-primary rounded-full relative cursor-pointer">
-                  <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-text">
-                    Show student count
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    Display total enrollments publicly
-                  </p>
-                </div>
-                <div className="w-11 h-6 bg-border-soft rounded-full relative cursor-pointer">
-                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full" />
-                </div>
-              </div>
-            </div>
 
-            <div className="pt-5 mt-5 border-t border-border-soft">
-              <button className="w-full flex items-center justify-center gap-2 py-3 border border-border-soft text-text-muted rounded-xl text-sm font-medium hover:border-primary hover:text-primary transition-colors">
-                <Download size={15} />
-                Export my data
-              </button>
+            <p className="text-sm text-text-muted mb-5">
+              Optional links shown on your public creator profile.
+            </p>
+
+            <div className="space-y-3">
+              <SocialInput
+                icon={Globe}
+                label="Website"
+                value={form.website}
+                disabled={!isEditing || isPendingAdminReview}
+                onChange={(value) => handleChange("website", value)}
+              />
+
+              <SocialInput
+                icon={Linkedin}
+                label="LinkedIn"
+                value={form.linkedin}
+                disabled={!isEditing || isPendingAdminReview}
+                onChange={(value) => handleChange("linkedin", value)}
+              />
+
+              <SocialInput
+                icon={Github}
+                label="GitHub"
+                value={form.github}
+                disabled={!isEditing || isPendingAdminReview}
+                onChange={(value) => handleChange("github", value)}
+              />
+
+              <SocialInput
+                icon={Twitter}
+                label="Twitter/X"
+                value={form.twitter}
+                disabled={!isEditing || isPendingAdminReview}
+                onChange={(value) => handleChange("twitter", value)}
+              />
             </div>
           </section>
 
-          {/* Danger zone */}
-          <section className="bg-red-50 rounded-2xl p-6 md:p-8 border border-red-100">
-            <h2 className="text-lg font-bold text-red-900 flex items-center gap-2 mb-3">
-              <Trash2 className="text-red-500" size={18} />
-              Danger zone
+          {/* Account security */}
+          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
+            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-6">
+              <Shield className="text-primary" size={18} />
+              Account & security
             </h2>
-            <p className="text-red-700 text-sm mb-5 leading-relaxed">
-              Deleting your account removes all your courses, student data, and
-              payout history. This cannot be undone.
-            </p>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="w-full py-3 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors"
-            >
-              Delete account
-            </button>
+
+            <div className="space-y-4">
+              <ReadonlyField label="Email address" value={user.email} />
+              <ReadonlyField
+                label="Account role"
+                value={user.role || "creator"}
+              />
+
+              <div className="pt-4 border-t border-border-soft">
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Password update, 2FA, connected accounts, sessions, and delete
+                  account features should be added later as separate backend
+                  APIs. For now this page only updates creator profile data.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Admin review status */}
+          <section className="bg-white rounded-2xl p-6 md:p-8 border border-border-soft">
+            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-4">
+              <BadgeCheck className="text-primary" size={18} />
+              Review status
+            </h2>
+
+            <div className="space-y-3">
+              <ProfileStatusBadge status={profile.profileStatus} />
+
+              {profile.rejectionReason && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-100">
+                  <p className="text-xs font-semibold text-red-700">
+                    Rejection reason
+                  </p>
+                  <p className="text-sm text-red-700 mt-1">
+                    {profile.rejectionReason}
+                  </p>
+                </div>
+              )}
+
+              <p className="text-sm text-text-muted leading-relaxed">
+                Your creator tools stay locked until your profile reaches
+                approved status.
+              </p>
+            </div>
           </section>
         </div>
       </div>
-
-      {/* Delete modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full border border-border-soft">
-            <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-5">
-              <Trash2 size={26} />
-            </div>
-            <h3 className="text-xl font-bold text-center text-text mb-2">
-              Delete account?
-            </h3>
-            <p className="text-text-muted text-center text-sm mb-7">
-              Are you sure you want to delete your account? This action cannot
-              be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 py-3 bg-surface text-text-muted rounded-xl font-medium hover:bg-border-soft transition-colors"
-              >
-                Cancel
-              </button>
-              <button className="flex-1 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  disabled,
+  onChange,
+  type = "text",
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+  type?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-text-muted">{label}</label>
+      <input
+        type={type}
+        disabled={disabled}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={inputClass}
+      />
+    </div>
+  );
+}
+
+function TextareaField({
+  label,
+  value,
+  disabled,
+  onChange,
+  rows = 4,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+  rows?: number;
+  placeholder?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-text-muted">{label}</label>
+      <textarea
+        rows={rows}
+        disabled={disabled}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${inputClass} resize-none`}
+      />
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-text-muted">{label}</label>
+      <select
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${inputClass} appearance-none`}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function ReadonlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-text-muted">{label}</label>
+      <div className="flex items-center justify-between p-3 rounded-xl bg-surface text-text-muted text-sm">
+        <span>{value}</span>
+        <Lock size={13} />
+      </div>
+    </div>
+  );
+}
+
+function SocialInput({
+  icon: Icon,
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border-soft bg-surface">
+      <Icon size={17} className="text-text-muted flex-shrink-0" />
+      <input
+        type="text"
+        disabled={disabled}
+        placeholder={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="bg-transparent outline-none text-sm w-full text-text disabled:cursor-not-allowed disabled:opacity-60"
+      />
+    </div>
+  );
+}
+
+function VerificationItem({
+  label,
+  verified,
+}: {
+  label: string;
+  verified: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-xl bg-white">
+      <div className="flex items-center gap-2">
+        <CheckCircle
+          size={16}
+          className={verified ? "text-primary" : "text-text-muted"}
+        />
+        <span className="text-sm font-medium text-text">{label}</span>
+      </div>
+
+      <span
+        className={`text-xs font-semibold ${
+          verified ? "text-primary" : "text-text-muted"
+        }`}
+      >
+        {verified ? "Verified" : "Pending"}
+      </span>
+    </div>
+  );
+}
+
+function ProfileStatusBadge({ status }: { status: string }) {
+  const config = {
+    incomplete: "bg-amber-50 text-amber-700 border-amber-200",
+    pending_verification: "bg-blue-50 text-blue-700 border-blue-200",
+    pending_admin_review: "bg-blue-50 text-blue-700 border-blue-200",
+    approved: "bg-green-50 text-green-700 border-green-200",
+    rejected: "bg-red-50 text-red-700 border-red-200",
+    suspended: "bg-red-50 text-red-700 border-red-200",
+  };
+
+  return (
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
+        config[status as keyof typeof config] || config.incomplete
+      }`}
+    >
+      {status.replaceAll("_", " ")}
+    </span>
   );
 }
