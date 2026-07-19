@@ -29,6 +29,7 @@ import {
   CreatorProfile,
   UpdateCreatorProfilePayload,
 } from "@/app/services/creator";
+import VerificationCard from "@/app/components/verification/VerificationCard";
 
 const inputClass =
   "w-full px-4 py-3 rounded-xl border border-border-soft bg-surface focus:bg-white focus:border-primary outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-sm text-text";
@@ -752,36 +753,22 @@ export default function CreatorProfilePage() {
         {/* Right column */}
         <div className="space-y-8">
           {/* Verification */}
-          <section className="bg-primary-soft rounded-2xl p-6 md:p-8 border border-primary/20">
-            <h2 className="text-lg font-bold text-text flex items-center gap-2 mb-3">
-              <BadgeCheck className="text-primary" size={18} />
-              Verification
-            </h2>
-
-            <p className="text-text-muted text-sm mb-5 leading-relaxed">
-              Verified creators build more trust with students and get approval
-              faster.
-            </p>
-
-            <div className="space-y-2.5">
-              <VerificationItem
-                label="Email verified"
-                verified={profile.emailVerified}
+          <section title="Verification">
+            <div className="space-y-4">
+              <VerificationCard
+                type="email"
+                title="Email verification"
+                description="Verify your email address before submitting your creator profile for admin review."
+                isVerified={Boolean(profile?.emailVerified)}
+                queryKeyToRefresh="creator-profile"
               />
 
-              <VerificationItem
-                label="Phone verified"
-                verified={profile.phoneVerified}
-              />
-
-              <VerificationItem
-                label="Identity verified"
-                verified={profile.identityVerified}
-              />
-
-              <VerificationItem
-                label="Payout method"
-                verified={Boolean(profile.payoutDetails?.connected)}
+              <VerificationCard
+                type="phone"
+                title="Phone verification"
+                description="Verify your phone number before submitting your creator profile for admin review."
+                isVerified={Boolean(profile?.phoneVerified)}
+                queryKeyToRefresh="creator-profile"
               />
             </div>
           </section>

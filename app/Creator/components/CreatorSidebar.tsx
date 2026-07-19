@@ -37,8 +37,10 @@ const navItems = [
 
 export default function CreatorSidebar({
   isLocked = false,
+  isSuspended = false,
 }: {
   isLocked?: boolean;
+  isSuspended?: boolean;
 }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -70,7 +72,13 @@ export default function CreatorSidebar({
           {/* Logo */}
           <div className="p-6">
             <Link
-              href={isLocked ? "/Creator/Profile" : "/Creator"}
+              href={
+                isSuspended
+                  ? "/Creator/Help"
+                  : isLocked
+                    ? "/Creator/Profile"
+                    : "/Creator"
+              }
               className="flex items-center gap-2"
             >
               {" "}
@@ -95,7 +103,9 @@ export default function CreatorSidebar({
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const isProfileLink = item.href === "/Creator/Profile";
-              const disabled = isLocked && !isProfileLink;
+              const isHelpLink = item.href === "/Creator/Help";
+              const disabled =
+                (isLocked && !isProfileLink) || (isSuspended && !isHelpLink);
               return disabled ? (
                 <div
                   key={item.label}

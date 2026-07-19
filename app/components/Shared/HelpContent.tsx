@@ -1,4 +1,3 @@
-// app/components/shared/HelpContent.tsx
 "use client";
 
 import { useState } from "react";
@@ -18,11 +17,16 @@ import {
   Mail,
   ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 interface FaqItem {
   question: string;
   answer: string;
   category: string;
+}
+
+interface HelpContentProps {
+  basePath: "/User" | "/Creator";
 }
 
 const CATEGORIES = [
@@ -65,206 +69,151 @@ const CATEGORIES = [
 ] as const;
 
 const FAQS: FaqItem[] = [
-  // Getting started
   {
     category: "getting-started",
     question: "How do I switch between learner and creator mode?",
     answer:
-      "Go to your profile menu in the top right and select 'Switch to Creator' or 'Switch to Learner'. You can hold both roles on the same account at the same time.",
+      "Go to your profile menu and select creator or learner mode. You can use Learnix Labs as a learner or creator depending on your account role.",
   },
   {
     category: "getting-started",
     question: "Is there a fee to join as a creator?",
     answer:
-      "No, signing up as a creator is free. We only take a percentage of each sale once you start earning — there are no upfront or listing fees.",
+      "No, signing up as a creator is free. Platform fees only apply when you start earning from course sales.",
   },
   {
     category: "getting-started",
     question: "What do I need to get started as a creator?",
     answer:
-      "Just an account and something to teach. You don't need existing videos or a following — you can build your first course directly in the Creator Studio.",
+      "You need a creator account, a completed creator profile, verified contact details, and admin approval before creator tools are unlocked.",
   },
   {
     category: "getting-started",
     question: "Can I use Learnix Labs on mobile?",
     answer:
-      "Yes, the site is fully responsive. A dedicated mobile app is on our roadmap, but for now everything — including course creation — works in your mobile browser.",
+      "Yes, Learnix Labs is responsive and works in mobile browsers. A dedicated mobile app can be added later.",
   },
   {
     category: "getting-started",
-    question: "How do I invite team members to help manage my courses?",
+    question: "How do I contact support?",
     answer:
-      "Team seats aren't available yet — each creator account is currently single-owner. Multi-user course management is a planned feature.",
+      "Open Help and click Contact support. Your name, email, and account ID will be attached automatically.",
   },
 
-  // Courses & content
   {
     category: "courses",
     question: "How long does it take for a new course to go live?",
     answer:
-      "Once you submit a course for review, it's typically approved within 24-48 hours, provided it meets our content guidelines.",
+      "After a course is submitted, it may go through admin review before it becomes visible to learners.",
   },
   {
     category: "courses",
-    question: "Can I edit a course after it's published?",
+    question: "Can I edit a course after publishing?",
     answer:
-      "Yes. You can update lessons, pricing, and materials anytime from My Courses. Major changes may briefly re-trigger a review.",
-  },
-  {
-    category: "courses",
-    question: "What video formats and sizes are supported?",
-    answer:
-      "We support MP4, MOV, and WebM up to 4GB per lesson. We recommend exporting at 1080p for the best balance of quality and upload speed.",
+      "Yes, creators can update course details, lessons, pricing, and materials from the creator dashboard.",
   },
   {
     category: "courses",
     question: "Can I offer free preview lessons?",
     answer:
-      "Yes. Mark any lesson as a 'free preview' while building your course, and it'll be watchable by anyone before they purchase.",
+      "Yes, preview lessons can be added later so learners can check a course before purchasing.",
   },
   {
     category: "courses",
-    question: "How do I set or change the price of my course?",
+    question: "What happens if my course gets rejected?",
     answer:
-      "Open the course in My Courses, go to Pricing, and set your amount. Price changes apply immediately to new enrollments, existing students keep their original price.",
-  },
-  {
-    category: "courses",
-    question: "Can I bundle multiple courses together?",
-    answer:
-      "Course bundles aren't supported yet, but it's one of our most requested features and is actively planned.",
-  },
-  {
-    category: "courses",
-    question: "What happens if my course gets rejected in review?",
-    answer:
-      "You'll get an email explaining exactly what needs to change, and you can resubmit as many times as needed at no cost.",
+      "You will be able to review the reason, update the course, and submit it again.",
   },
 
-  // Payouts & billing
   {
     category: "payouts",
-    question: "When do I get paid?",
+    question: "When do creators get paid?",
     answer:
-      "Payouts are processed automatically on the 28th of every month for all revenue earned in the prior period, sent directly to your connected bank account.",
+      "Creator payouts depend on the platform payout schedule. Bank payout support is currently the main planned payout method.",
   },
   {
     category: "payouts",
-    question: "What payment methods do you support?",
+    question: "What payment methods are supported?",
     answer:
-      "Payments are handled securely through Stripe. Students can pay by card, and creators receive payouts via direct bank transfer.",
+      "For now, bank transfer is the main payout method for creators. More payout methods can be added later.",
   },
   {
     category: "payouts",
     question: "What percentage does Learnix Labs take?",
     answer:
-      "Our platform fee is a percentage of each sale, shown clearly on your Payouts page before you publish — there are no hidden charges.",
-  },
-  {
-    category: "payouts",
-    question: "Why is my payout delayed?",
-    answer:
-      "Delays usually happen when your bank account isn't verified yet, or if a payout falls on a bank holiday. Check Payouts > Payout method for verification status.",
-  },
-  {
-    category: "payouts",
-    question: "Do I need to handle taxes myself?",
-    answer:
-      "Yes, creators are responsible for reporting and paying applicable taxes on their earnings. We provide downloadable earnings reports to help with this.",
+      "The platform fee is shown in the creator profile and payout section before creators start selling courses.",
   },
   {
     category: "payouts",
     question: "Can students get a refund?",
     answer:
-      "Students can request a refund within 14 days of purchase if they haven't completed more than 30% of the course. Refunds are deducted from your next payout.",
+      "Refund rules can be handled by the admin team. Learners can submit a support request for refund-related issues.",
   },
 
-  // Students & enrollment
   {
     category: "students",
-    question: "How do I message a student directly?",
+    question: "Can creators see student progress?",
     answer:
-      "Open Students from your sidebar, find the student, and click Message. They'll receive it both in-app and via email based on their notification settings.",
+      "Student progress tracking can be shown inside the creator dashboard once course and enrollment features are completed.",
   },
   {
     category: "students",
-    question: "Can I see how far along a student is in my course?",
+    question: "Can creators message students?",
     answer:
-      "Yes, the Students page shows per-student progress, including completion percentage and last active date.",
-  },
-  {
-    category: "students",
-    question: "Can I remove a student from my course?",
-    answer:
-      "You can revoke access from a student's profile page. If they paid, this typically should be paired with issuing a refund.",
+      "Direct messaging can be added later. For now, support and course communication features are handled separately.",
   },
   {
     category: "students",
     question: "How do students leave reviews?",
     answer:
-      "Students are prompted to rate and review a course after reaching 50% completion, or they can leave one anytime from the course page.",
+      "Review features can be added after the course enrollment and completion system is ready.",
   },
 
-  // Account & security
+  {
+    category: "account",
+    question: "Why is my account suspended?",
+    answer:
+      "Accounts may be suspended due to policy violations, suspicious activity, or admin review. You can submit an appeal from the support form.",
+  },
+  {
+    category: "account",
+    question: "How can I appeal a suspension?",
+    answer:
+      "Open Help, click Contact support, select Account suspension appeal, and explain your issue clearly.",
+  },
   {
     category: "account",
     question: "How do I reset my password?",
     answer:
-      "Go to Settings, then Account & security, and use the 'Update password' section. If you're logged out, use the 'Forgot password' link on the login page.",
-  },
-  {
-    category: "account",
-    question: "How do I enable two-factor authentication?",
-    answer:
-      "In Settings, under Account & security, click Enable next to Authenticator app and follow the setup steps with your preferred authenticator.",
+      "Password reset can be handled from the login page once the forgot-password flow is added.",
   },
   {
     category: "account",
     question: "How do I delete my account?",
     answer:
-      "You can delete your account from Profile, under the Danger zone section. This permanently removes your courses, student data, and payout history.",
-  },
-  {
-    category: "account",
-    question: "I lost access to my email, how do I recover my account?",
-    answer:
-      "Contact support with any proof of account ownership (payment receipts, course names, sign-up date) and we'll help you regain access.",
-  },
-  {
-    category: "account",
-    question: "Can I have both a learner and creator profile under one email?",
-    answer:
-      "Yes, one account covers both roles. You don't need separate emails or logins for learning and teaching.",
+      "Account deletion can be requested from support or added later inside profile settings.",
   },
 
-  // Settings & preferences
   {
     category: "settings",
-    question: "How do I turn off marketing emails?",
-    answer:
-      "Go to Settings > Notifications and toggle off Promotions & offers under the Email section. Transactional emails like receipts can't be disabled.",
+    question: "Can I change my profile details?",
+    answer: "Yes, profile details can be updated from your profile page.",
   },
   {
     category: "settings",
-    question: "Can I change my display language?",
+    question: "Can I change notifications?",
     answer:
-      "Yes, under Settings > Language & region, choose your preferred display language. Course content language is set by each individual creator.",
+      "Notification settings can be added later inside the Settings section.",
   },
   {
     category: "settings",
     question: "Does Learnix Labs support dark mode?",
     answer:
-      "Dark mode is available under Settings > Appearance. It's currently in beta, so some pages may not be fully styled yet.",
-  },
-  {
-    category: "settings",
-    question: "How do I export my data?",
-    answer:
-      "Go to Settings > Data & privacy and click Download my data (or Export revenue report if you're a creator) to get a copy in CSV format.",
+      "Dark mode can be added later. Current dashboard pages are designed around the light theme.",
   },
 ];
 
-export default function HelpContent() {
+export default function HelpContent({ basePath }: HelpContentProps) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -272,146 +221,168 @@ export default function HelpContent() {
   const isSearching = query.trim() !== "";
 
   const filteredFaqs = FAQS.filter((faq) => {
+    const searchTerm = query.toLowerCase();
+
     const matchesQuery =
       !isSearching ||
-      faq.question.toLowerCase().includes(query.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(query.toLowerCase());
+      faq.question.toLowerCase().includes(searchTerm) ||
+      faq.answer.toLowerCase().includes(searchTerm);
+
     const matchesCategory = !activeCategory || faq.category === activeCategory;
+
     return matchesQuery && matchesCategory;
   });
 
   const activeCategoryData = CATEGORIES.find((c) => c.key === activeCategory);
 
   return (
-    <div className="max-w-5xl mx-auto pb-12">
-      {/* Search hero */}
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-text mb-2">How can we help?</h1>
-        <p className="text-text-muted mb-7">
-          Search our help center or browse a topic below.
-        </p>
+    <div className="min-h-[calc(100vh-80px)] max-w-5xl mx-auto flex flex-col">
+      <div className="flex-1">
+        {/* Search hero */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-text mb-2">
+            How can we help?
+          </h1>
 
-        <div className="relative max-w-xl mx-auto">
-          <Search
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"
-          />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActiveCategory(null);
-            }}
-            placeholder="Search for an answer..."
-            className="w-full pl-11 pr-4 py-4 rounded-full border border-border-soft bg-white focus:border-primary outline-none transition-colors text-sm text-text placeholder:text-text-muted"
-          />
+          <p className="text-text-muted mb-6">
+            Search the help center or browse a topic below.
+          </p>
+
+          <div className="relative max-w-xl mx-auto">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"
+            />
+
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActiveCategory(null);
+                setOpenFaq(null);
+              }}
+              placeholder="Search for an answer..."
+              className="w-full pl-11 pr-4 py-4 rounded-full border border-border-soft bg-white focus:border-primary outline-none transition-colors text-sm text-text placeholder:text-text-muted shadow-sm"
+            />
+          </div>
         </div>
+
+        {isSearching ? (
+          <section className="bg-white border border-border-soft rounded-2xl p-5 md:p-7 mb-6 shadow-sm">
+            <h2 className="text-lg font-bold text-text mb-5">
+              {filteredFaqs.length} result
+              {filteredFaqs.length !== 1 && "s"} for &ldquo;{query}&rdquo;
+            </h2>
+
+            <FaqList
+              faqs={filteredFaqs}
+              openFaq={openFaq}
+              setOpenFaq={setOpenFaq}
+            />
+          </section>
+        ) : activeCategory ? (
+          <section className="bg-white border border-border-soft rounded-2xl p-5 md:p-7 mb-6 shadow-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveCategory(null);
+                setOpenFaq(null);
+              }}
+              className="flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary transition-colors mb-5"
+            >
+              <ArrowLeft size={15} />
+              All topics
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center flex-shrink-0">
+                {activeCategoryData && <activeCategoryData.icon size={20} />}
+              </div>
+
+              <div>
+                <h2 className="text-lg font-bold text-text">
+                  {activeCategoryData?.label}
+                </h2>
+                <p className="text-sm text-text-muted">
+                  {activeCategoryData?.description}
+                </p>
+              </div>
+            </div>
+
+            <FaqList
+              faqs={filteredFaqs}
+              openFaq={openFaq}
+              setOpenFaq={setOpenFaq}
+            />
+          </section>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-4 mb-6">
+            {CATEGORIES.map((cat) => {
+              const count = FAQS.filter((f) => f.category === cat.key).length;
+
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(cat.key);
+                    setOpenFaq(null);
+                  }}
+                  className="flex items-start gap-4 p-5 rounded-2xl border border-border-soft bg-white hover:border-primary hover:shadow-sm transition-all text-left group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center flex-shrink-0">
+                    <cat.icon size={20} />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-text mb-0.5">
+                      {cat.label}
+                    </p>
+
+                    <p className="text-xs text-text-muted mb-1.5 leading-relaxed">
+                      {cat.description}
+                    </p>
+
+                    <span className="text-xs text-primary font-medium">
+                      {count} article{count !== 1 && "s"}
+                    </span>
+                  </div>
+
+                  <ChevronRight
+                    size={18}
+                    className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {isSearching ? (
-        /* Search results view */
-        <section className="bg-white border border-border-soft rounded-2xl p-6 md:p-8 mb-8">
-          <h2 className="text-lg font-bold text-text mb-5">
-            {filteredFaqs.length} result{filteredFaqs.length !== 1 && "s"} for
-            &ldquo;{query}&rdquo;
-          </h2>
-          <FaqList
-            faqs={filteredFaqs}
-            openFaq={openFaq}
-            setOpenFaq={setOpenFaq}
-          />
-        </section>
-      ) : activeCategory ? (
-        /* Category detail view */
-        <section className="bg-white border border-border-soft rounded-2xl p-6 md:p-8 mb-8">
-          <button
-            onClick={() => setActiveCategory(null)}
-            className="flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary transition-colors mb-5"
-          >
-            <ArrowLeft size={15} />
-            All topics
-          </button>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center flex-shrink-0">
-              {activeCategoryData && <activeCategoryData.icon size={20} />}
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-text">
-                {activeCategoryData?.label}
-              </h2>
-              <p className="text-sm text-text-muted">
-                {activeCategoryData?.description}
-              </p>
-            </div>
-          </div>
-
-          <FaqList
-            faqs={filteredFaqs}
-            openFaq={openFaq}
-            setOpenFaq={setOpenFaq}
-          />
-        </section>
-      ) : (
-        /* Browse-by-topic grid */
-        <div className="grid sm:grid-cols-2 gap-4 mb-8">
-          {CATEGORIES.map((cat) => {
-            const count = FAQS.filter((f) => f.category === cat.key).length;
-            return (
-              <button
-                key={cat.key}
-                onClick={() => {
-                  setActiveCategory(cat.key);
-                  setOpenFaq(null);
-                }}
-                className="flex items-start gap-4 p-5 rounded-2xl border border-border-soft bg-white hover:border-primary transition-colors text-left group"
-              >
-                <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center flex-shrink-0">
-                  <cat.icon size={20} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-text mb-0.5">
-                    {cat.label}
-                  </p>
-                  <p className="text-xs text-text-muted mb-1.5">
-                    {cat.description}
-                  </p>
-                  <span className="text-xs text-primary font-medium">
-                    {count} article{count !== 1 && "s"}
-                  </span>
-                </div>
-                <ChevronRight
-                  size={18}
-                  className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1"
-                />
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       {/* Contact support */}
-      <section className="bg-primary-soft border border-primary/20 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-5">
-        <div className="flex items-center gap-4">
+      <section className="bg-primary-soft border border-primary/20 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-5">
+        <div className="flex items-center gap-4 text-center md:text-left">
           <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-primary flex-shrink-0">
             <MessageCircle size={22} />
           </div>
+
           <div>
             <p className="text-sm font-bold text-text">Still need help?</p>
             <p className="text-sm text-text-muted">
-              Our team typically responds within 24 hours.
+              Submit a support request and our team will review it.
             </p>
           </div>
         </div>
-        <a
-          href="/#contact"
+
+        <Link
+          href={`${basePath}/Help/Support`}
           className="w-full md:w-auto flex items-center justify-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-3 rounded-full hover:bg-primary-hover transition-colors whitespace-nowrap"
         >
           <Mail size={16} />
           Contact support
           <ArrowRight size={15} />
-        </a>
+        </Link>
       </section>
     </div>
   );
@@ -438,15 +409,18 @@ function FaqList({
     <div className="divide-y divide-border-soft">
       {faqs.map((faq, i) => {
         const isOpen = openFaq === i;
+
         return (
           <div key={faq.question} className="py-2">
             <button
+              type="button"
               onClick={() => setOpenFaq(isOpen ? null : i)}
               className="w-full flex items-center justify-between gap-4 py-3 text-left"
             >
               <span className="text-sm font-medium text-text">
                 {faq.question}
               </span>
+
               <motion.span
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.2 }}

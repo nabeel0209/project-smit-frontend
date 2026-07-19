@@ -33,7 +33,11 @@ const navItems = [
   { icon: Settings, label: "Settings", href: "/User/Settings" },
 ];
 
-export default function UserSidebar() {
+export default function UserSidebar({
+  isSuspended = false,
+}: {
+  isSuspended?: boolean;
+}) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -63,12 +67,10 @@ export default function UserSidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6">
-            <Link href="/User" className="flex items-center gap-2">
-              <img
-                src="/icons/siteIcon/logo.svg"
-                alt="Learnix Labs"
-                className="w-9 h-9"
-              />
+            <Link
+              href={isSuspended ? "/User/Help" : "/User"}
+              className="flex items-center gap-2"
+            >
               <span className="text-base font-semibold text-text">
                 Learnix Labs
               </span>
@@ -79,10 +81,25 @@ export default function UserSidebar() {
           <nav className="px-4 py-4 space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
-              return (
+              const isHelpLink = item.href === "/User/Help";
+              const disabled = isSuspended && !isHelpLink;
+
+              return disabled ? (
+                <div
+                  key={item.label}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
+                    "text-text-muted opacity-40 cursor-not-allowed",
+                  )}
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </div>
+              ) : (
                 <Link
                   key={item.label}
                   href={item.href}
+                  onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
                     isActive
