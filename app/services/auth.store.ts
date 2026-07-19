@@ -5,9 +5,18 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: "user" | "creator" | "admin";
+  role: "user" | "creator" | "admin" | "moderator";
   dob?: string;
   gender?: string;
+  status?: "active" | "suspended";
+  suspension?: {
+    isPermanent?: boolean;
+    reason?: string;
+    duration?: "3_days" | "7_days" | "1_month" | "3_months" | "permanent";
+    suspendedAt?: string;
+    suspendedUntil?: string;
+    suspendedBy?: string;
+  };
   [key: string]: any;
 }
 
@@ -28,9 +37,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     try {
       const res = await api.get("/user/me");
-      set({ user: res.data, isAuthLoading: false });
+
+      set({
+        user: res.data.user,
+        isAuthLoading: false,
+      });
     } catch (err) {
-      set({ user: null, isAuthLoading: false });
+      set({
+        user: null,
+        isAuthLoading: false,
+      });
     }
   },
 
@@ -40,7 +56,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err) {
       console.error("Logout API failed, continuing anyway", err);
     } finally {
-      set({ user: null, isAuthLoading: false });
+      set({
+        user: null,
+        isAuthLoading: false,
+      });
     }
   },
 }));

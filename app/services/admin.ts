@@ -31,6 +31,15 @@ export interface AdminUser {
     currency?: string;
     connected?: boolean;
   };
+
+  suspension?: {
+    isPermanent?: boolean;
+    reason?: string;
+    duration?: "3_days" | "7_days" | "1_month" | "3_months" | "permanent";
+    suspendedAt?: string;
+    suspendedUntil?: string;
+    suspendedBy?: string;
+  };
 }
 
 export interface AdminUsersResponse {
@@ -78,4 +87,33 @@ export const getAdminUserDetails = async (publicId: string) => {
 export const getAdminCreatorDetails = async (id: string) => {
   const res = await api.get(`/admin/creators/${id}`);
   return res.data.creator;
+};
+
+export type SuspensionDuration =
+  | "3_days"
+  | "7_days"
+  | "1_month"
+  | "3_months"
+  | "permanent";
+
+export const suspendUser = async ({
+  id,
+  duration,
+  reason,
+}: {
+  id: string;
+  duration: SuspensionDuration;
+  reason: string;
+}): Promise<AdminUser> => {
+  const res = await api.patch(`/admin/users/${id}/suspend`, {
+    duration,
+    reason,
+  });
+
+  return res.data.user;
+};
+
+export const reactivateUser = async (id: string): Promise<AdminUser> => {
+  const res = await api.patch(`/admin/users/${id}/reactivate`);
+  return res.data.user;
 };

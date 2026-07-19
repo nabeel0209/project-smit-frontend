@@ -25,9 +25,13 @@ import {
   approveCreator,
   getAdminCreatorDetails,
   rejectCreator,
+  suspendUser,
+  reactivateUser,
 } from "@/app/services/admin";
+import SuspendAccountModal from "@/app/Admin/components/SuspendAccountModal";
 
 export default function AdminCreatorDetailsPage() {
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
   const params = useParams();
   const id = params.id as string;
   const queryClient = useQueryClient();
@@ -78,6 +82,37 @@ export default function AdminCreatorDetailsPage() {
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || "Failed to reject creator.");
+    },
+  });
+
+  const suspendMutation = useMutation({
+    mutationFn: suspendUser,
+    onSuccess: () => {
+      toast.success("Creator account suspended.");
+      setShowSuspendModal(false);
+      queryClient.invalidateQueries({
+        queryKey: ["admin-creator-details", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to suspend creator.");
+    },
+  });
+
+  const reactivateMutation = useMutation({
+    mutationFn: reactivateUser,
+    onSuccess: () => {
+      toast.success("Creator account reactivated.");
+      queryClient.invalidateQueries({
+        queryKey: ["admin-creator-details", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.message || "Failed to reactivate creator.",
+      );
     },
   });
 
@@ -152,6 +187,9 @@ export default function AdminCreatorDetailsPage() {
 
                 <p className="text-sm text-text-muted">
                   {creatorUser?.email || "No email"}
+                </p>
+                <p className="text-xs text-text-muted">
+                  Account: {creatorUser?.status || "active"}
                 </p>
               </div>
             </div>
@@ -324,6 +362,58 @@ export default function AdminCreatorDetailsPage() {
                 </p>
               </div>
             </Section>
+
+            <Section title="Admin Actions">
+              {creatorUser?.status === "suspended" ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+                    <p className="text-sm font-semibold text-red-700">
+                      This creator account is suspended
+                    </p>
+                    <p className="text-xs text-red-700 mt-1 leading-relaxed">
+                      The creator cannot access protected creator dashboard
+                      features until the account is reactivated.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={reactivateMutation.isPending}
+                    onClick={() =>
+                      reactivateMutation.mutate(
+                        creatorUser?.creatorId || creatorUser?._id,
+                      )
+                    }
+                    className="w-full py-3 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-60"
+                  >
+                    {reactivateMutation.isPending
+                      ? "Reactivating..."
+                      : "Reactivate account"}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+                    <p className="text-sm font-semibold text-amber-800">
+                      Suspend this creator
+                    </p>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      The creator will lose access to creator dashboard and
+                      course management features.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={suspendMutation.isPending}
+                    onClick={() => setShowSuspendModal(true)}
+                    className="w-full py-3 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
+                  >
+                    Suspend creator
+                  </button>
+                </div>
+              )}
+            </Section>
           </div>
         </div>
       </div>
@@ -375,6 +465,19 @@ export default function AdminCreatorDetailsPage() {
           </div>
         </div>
       )}
+      <SuspendAccountModal
+        isOpen={showSuspendModal}
+        accountName={creator.displayName || creatorUser?.name || "Creator"}
+        isPending={suspendMutation.isPending}
+        onClose={() => setShowSuspendModal(false)}
+        onConfirm={({ duration, reason }) =>
+          suspendMutation.mutate({
+            id: creatorUser?.creatorId || creatorUser?._id,
+            duration,
+            reason,
+          })
+        }
+      />
     </div>
   );
 }

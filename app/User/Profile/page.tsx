@@ -32,6 +32,7 @@ import {
   updateMyProfile,
   UpdateStudentProfilePayload,
 } from "@/app/services/user";
+import VerificationCard from "@/app/components/verification/VerificationCard";
 
 type FormState = {
   name: string;
@@ -740,6 +741,25 @@ export default function ProfilePage() {
                 </div>
               </Field>
 
+              <div className="pt-2 grid gap-3">
+                {" "}
+                <VerificationCard
+                  type="email"
+                  title="Email verification"
+                  description="Verify your email address to improve account security and support access."
+                  isVerified={Boolean(
+                    profile.emailVerified || hasGoogleAccount,
+                  )}
+                  queryKeyToRefresh="my-student-profile"
+                />
+                <VerificationCard
+                  type="phone"
+                  title="Phone verification"
+                  description="Verify your phone number for account recovery and future payment security."
+                  isVerified={Boolean(profile.phoneVerified)}
+                  queryKeyToRefresh="my-student-profile"
+                />
+              </div>
               <div className="pt-2 space-y-3">
                 <h3 className="text-sm font-semibold text-text">
                   Update password

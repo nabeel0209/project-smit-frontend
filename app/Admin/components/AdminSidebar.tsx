@@ -6,10 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
   Menu,
   Settings,
+  Shield,
   ShieldCheck,
   Users,
   X,
@@ -23,27 +25,23 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { icon: Users, label: "User Management", href: "/Admin", enabled: true },
+  { icon: Users, label: "User Management", href: "/Admin" },
+  { icon: HelpCircle, label: "Support", href: "/Admin/Support" },
 
-  // Future admin pages - shown disabled for now
-  { icon: BookOpen, label: "Courses", href: "/Admin/Courses", enabled: false },
+  // future disabled pages
+  { icon: BookOpen, label: "Courses", href: "/Admin/Courses", disabled: true },
   {
     icon: BarChart3,
     label: "Analytics",
     href: "/Admin/Analytics",
-    enabled: false,
+    disabled: true,
   },
-  {
-    icon: ShieldCheck,
-    label: "Roles",
-    href: "/Admin/Roles",
-    enabled: false,
-  },
+  { icon: Shield, label: "Roles", href: "/Admin/Roles", disabled: true },
   {
     icon: Settings,
     label: "Settings",
     href: "/Admin/Settings",
-    enabled: false,
+    disabled: true,
   },
 ];
 
@@ -98,21 +96,24 @@ export default function AdminSidebar() {
           {/* Navigation */}
           <nav className="px-4 py-4 space-y-1">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              const disabled = !item.enabled;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/Admin" && pathname.startsWith(item.href));
 
-              return disabled ? (
-                <div
-                  key={item.label}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200",
-                    "text-text-muted opacity-40 cursor-not-allowed",
-                  )}
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </div>
-              ) : (
+              if (item.disabled) {
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted opacity-40 cursor-not-allowed"
+                  >
+                    <item.icon size={18} />
+                    {item.label}
+                    <span className="ml-auto text-[10px]">Soon</span>
+                  </div>
+                );
+              }
+
+              return (
                 <Link
                   key={item.label}
                   href={item.href}

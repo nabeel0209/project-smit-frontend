@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import CreatorSidebar from "./CreatorSidebar";
 import { getMyCreatorProfile } from "@/app/services/creator";
 import { usePathname } from "next/navigation";
+import AccountSuspendedScreen from "@/app/components/AccountSuspendedScreen";
 
 export default function CreatorLayout({ children }: { children: ReactNode }) {
   const { data: profile, isLoading } = useQuery({
@@ -14,24 +15,58 @@ export default function CreatorLayout({ children }: { children: ReactNode }) {
     queryFn: getMyCreatorProfile,
   });
 
-  const isApproved = profile?.profileStatus === "approved";
   const pathname = usePathname();
+
+  const creatorUser = profile?.user as any;
+
+  const isApproved = profile?.profileStatus === "approved";
   const isProfilePage = pathname.startsWith("/Creator/Profile");
+  const isHelpPage = pathname.startsWith("/Creator/Help");
+
+  const isAccountSuspended = creatorUser?.status === "suspended";
 
   const shouldLockContent =
-    !isLoading && profile && !isApproved && !isProfilePage;
+    !isLoading &&
+    profile &&
+    !isAccountSuspended &&
+    !isApproved &&
+    !isProfilePage;
+
+  if (!isLoading && isAccountSuspended && !isHelpPage) {
+    return (
+      <div className="flex min-h-screen bg-background font-sans text-text">
+        <CreatorSidebar isSuspended />
+
+        <main className="flex-1 overflow-y-auto p-6 md:p-10">
+          <AccountSuspendedScreen
+            helpHref="/Creator/Help"
+            reason={creatorUser?.suspension?.reason}
+            suspendedUntil={creatorUser?.suspension?.suspendedUntil}
+            isPermanent={creatorUser?.suspension?.isPermanent}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-text">
-      <CreatorSidebar isLocked={!isLoading && profile ? !isApproved : false} />
+      <CreatorSidebar
+        isLocked={!isLoading && profile ? !isApproved : false}
+        isSuspended={isAccountSuspended}
+      />
 
       <main className="flex-1 overflow-y-auto p-6 md:p-10">
-        {!isLoading && profile && !isApproved && !isProfilePage && (
-          <CreatorStatusBar
-            status={profile.profileStatus}
-            rejectionReason={profile.rejectionReason}
-          />
-        )}
+        {!isLoading &&
+          profile &&
+          !isAccountSuspended &&
+          !isApproved &&
+          !isProfilePage && (
+            <CreatorStatusBar
+              status={profile.profileStatus}
+              rejectionReason={profile.rejectionReason}
+            />
+          )}
 
         {shouldLockContent ? <LockedCreatorContent /> : children}
       </main>

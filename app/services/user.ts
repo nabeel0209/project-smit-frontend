@@ -10,6 +10,7 @@ export interface StudentProfile {
   dob?: string;
   gender?: "male" | "female" | "other";
   phone?: string;
+  emailVerified?: boolean;
   phoneVerified?: boolean;
   avatar?: string;
   bio?: string;
@@ -34,6 +35,16 @@ export interface StudentProfile {
     billingCountry?: string;
     currency?: string;
     connected?: boolean;
+  };
+  status?: "active" | "suspended";
+
+  suspension?: {
+    isPermanent?: boolean;
+    reason?: string;
+    duration?: "3_days" | "7_days" | "1_month" | "3_months" | "permanent";
+    suspendedAt?: string;
+    suspendedUntil?: string;
+    suspendedBy?: string;
   };
 }
 
@@ -76,4 +87,47 @@ export const updateMyProfile = async (
 ): Promise<StudentProfile> => {
   const res = await api.patch("/user/me/profile", payload);
   return res.data.user;
+};
+
+export interface CurrentAccount {
+  _id: string;
+  name: string;
+  email: string;
+  role: "user" | "creator" | "admin" | "moderator";
+  studentId?: string;
+  creatorId?: string;
+  adminId?: string;
+  moderatorId?: string;
+  status?: "active" | "suspended";
+  suspension?: {
+    isPermanent?: boolean;
+    reason?: string;
+    duration?: "3_days" | "7_days" | "1_month" | "3_months" | "permanent";
+    suspendedAt?: string;
+    suspendedUntil?: string;
+    suspendedBy?: string;
+  };
+}
+
+export const getCurrentAccount = async (): Promise<CurrentAccount> => {
+  const res = await api.get("/user/me");
+  return res.data.user;
+};
+
+export const getCurrentAccountId = (user?: CurrentAccount) => {
+  if (!user) return "";
+
+  if (user.role === "admin") return user.adminId || user._id;
+  if (user.role === "creator") return user.creatorId || user._id;
+  if (user.role === "moderator") return user.moderatorId || user._id;
+
+  return user.studentId || user._id;
+};
+
+export const getCurrentAccountIdLabel = (role?: string) => {
+  if (role === "admin") return "Admin ID";
+  if (role === "creator") return "Creator ID";
+  if (role === "moderator") return "Moderator ID";
+
+  return "Student ID";
 };

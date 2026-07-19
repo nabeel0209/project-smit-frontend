@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Calendar,
@@ -19,11 +19,19 @@ import {
   getAdminUserDetails,
   getPublicUserId,
   getPublicUserIdLabel,
+  suspendUser,
+  reactivateUser,
 } from "@/app/services/admin";
+import SuspendAccountModal from "@/app/Admin/components/SuspendAccountModal";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function AdminUserDetailsPage() {
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+
   const params = useParams();
   const id = params.id as string;
+  const queryClient = useQueryClient();
 
   const {
     data: user,
@@ -33,6 +41,27 @@ export default function AdminUserDetailsPage() {
     queryKey: ["admin-user-details", id],
     queryFn: () => getAdminUserDetails(id),
     enabled: Boolean(id),
+  });
+
+  const suspendMutation = useMutation({
+    mutationFn: suspendUser,
+    onSuccess: () => {
+      toast.success("Account suspended.");
+      setShowSuspendModal(false);
+      queryClient.invalidateQueries({ queryKey: ["admin-user-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to suspend account.");
+    },
+  });
+
+  const reactivateMutation = useMutation({
+    mutationFn: reactivateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-user-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
   });
 
   if (isLoading) {
@@ -231,19 +260,93 @@ export default function AdminUserDetailsPage() {
             </Section>
 
             <Section title="Admin Actions">
-              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-                <p className="text-sm font-semibold text-amber-800">
-                  Actions coming next
-                </p>
-                <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                  Suspend and reactivate buttons will be added here after the
-                  detail pages are complete.
-                </p>
-              </div>
+              {user.status === "suspended" ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+                    <p className="text-sm font-semibold text-red-700">
+                      This account is suspended
+                    </p>
+                    <p className="text-xs text-red-700 mt-1 leading-relaxed">
+                      The student cannot access protected dashboard features
+                      until the account is reactivated.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={reactivateMutation.isPending}
+                    onClick={() =>
+                      reactivateMutation.mutate(
+                        getPublicUserId(user) || user._id,
+                      )
+                    }
+                    className="w-full py-3 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-60"
+                  >
+                    {reactivateMutation.isPending
+                      ? "Reactivating..."
+                      : "Reactivate account"}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+                    <p className="text-sm font-semibold text-amber-800">
+                      Suspend this account
+                    </p>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      The student will lose access to protected dashboard
+                      features.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={suspendMutation.isPending}
+                    onClick={() => setShowSuspendModal(true)}
+                    className="w-full py-3 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
+                  >
+                    Suspend account
+                  </button>
+                </div>
+              )}
             </Section>
           </div>
         </div>
       </div>
+      <SuspendAccountModal
+        isOpen={showSuspendModal}
+        accountName={user.name}
+        isPending={suspendMutation.isPending}
+        onClose={() => setShowSuspendModal(false)}
+        onConfirm={({ duration, reason }) =>
+          suspendMutation.mutate({
+            id: getPublicUserId(user) || user._id,
+            duration,
+            reason,
+          })
+        }
+      />
+      {user.status === "suspended" && user.suspension && (
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+          <p className="text-sm font-semibold text-red-700">
+            Suspension details
+          </p>
+          <p className="text-xs text-red-700 mt-1">
+            Reason: {user.suspension.reason}
+          </p>
+          <p className="text-xs text-red-700 mt-1">
+            Duration: {user.suspension.duration?.replaceAll("_", " ")}
+          </p>
+          <p className="text-xs text-red-700 mt-1">
+            Until:{" "}
+            {user.suspension.isPermanent
+              ? "Permanent"
+              : user.suspension.suspendedUntil
+                ? formatDate(user.suspension.suspendedUntil)
+                : "N/A"}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
